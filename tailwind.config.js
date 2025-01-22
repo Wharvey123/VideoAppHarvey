@@ -19,5 +19,5 @@ export default {
         },
     },
 
-    plugins: [forms, typography],
+    plugins: [forms, typography, '@tailwindcss/aspect-ratio'],
 };

@@ -1,0 +1,24 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+    - vendor/nesbot/carbon/extension.neon
+
+parameters:
+
+    paths:
+        - app/
+        - routes/
+        - tests/
+
+    # Level 10 is the highest level
+    level: 5
+
+    ignoreErrors:
+        # Suppress errors related to accessing undefined properties on Eloquent models
+        - '#Access to an undefined property Illuminate\\Database\\Eloquent\\Model::.*#'
+
+        # Suppress errors related to undefined methods on Eloquent models
+        - '#Call to an undefined method Illuminate\\Database\\Eloquent\\Model::.*#'
+
+    # Uncomment and configure excludePaths if you need to exclude specific files from analysis
+    # excludePaths:
+    #     - ./*/*/FileToBeExcluded.php

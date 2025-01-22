@@ -6,6 +6,8 @@ use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Helpers\UserHelper;
+use App\Helpers\VideoHelper;
+
 class DatabaseSeeder extends Seeder
 {
     /**
@@ -22,5 +24,8 @@ class DatabaseSeeder extends Seeder
         // Create the default user and professor
         UserHelper::createDefaultUser();
         UserHelper::createDefaultProfessor();
+
+        // Crea vídeos per defecte
+        VideoHelper::createDefaultVideos();
     }
 }

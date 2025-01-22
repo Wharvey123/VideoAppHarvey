@@ -42,6 +42,10 @@ class RemoveTeamMember implements RemovesTeamMembers
      */
     protected function ensureUserDoesNotOwnTeam(User $teamMember, Team $team): void
     {
+        if (! $team->owner instanceof User) {
+            throw new \LogicException('Owner is not a valid User instance.');
+        }
+
         if ($teamMember->id === $team->owner->id) {
             throw ValidationException::withMessages([
                 'team' => [__('You may not leave a team that you created.')],

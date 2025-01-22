@@ -13,13 +13,14 @@ use Illuminate\Validation\Rule;
 use Laravel\Jetstream\Contracts\InvitesTeamMembers;
 use Laravel\Jetstream\Events\InvitingTeamMember;
 use Laravel\Jetstream\Jetstream;
-use Laravel\Jetstream\Mail\TeamInvitation;
+use Laravel\Jetstream\Mail\TeamInvitation; // Importació de la classe Mail de Jetstream
+use Laravel\Jetstream\TeamInvitation as JetstreamTeamInvitation; // Importació del model correcte per a la invitació
 use Laravel\Jetstream\Rules\Role;
 
 class InviteTeamMember implements InvitesTeamMembers
 {
     /**
-     * Invite a new team member to the given team.
+     * Convida un nou membre a l'equip.
      */
     public function invite(User $user, Team $team, string $email, ?string $role = null): void
     {
@@ -29,16 +30,21 @@ class InviteTeamMember implements InvitesTeamMembers
 
         InvitingTeamMember::dispatch($team, $email, $role);
 
-        $invitation = $team->teamInvitations()->create([
+        // Crear una instància de TeamInvitation de Jetstream
+        $invitation = new JetstreamTeamInvitation([
             'email' => $email,
             'role' => $role,
         ]);
 
+        // Guardar la invitació al model TeamInvitation relacionat amb l'equip
+        $team->teamInvitations()->save($invitation);
+
+        // Enviar la invitació per correu
         Mail::to($email)->send(new TeamInvitation($invitation));
     }
 
     /**
-     * Validate the invite member operation.
+     * Validar la operació d'invitació.
      */
     protected function validate(Team $team, string $email, ?string $role): void
     {
@@ -53,7 +59,7 @@ class InviteTeamMember implements InvitesTeamMembers
     }
 
     /**
-     * Get the validation rules for inviting a team member.
+     * Obtenir les regles de validació per a convidar un membre de l'equip.
      *
      * @return array<string, \Illuminate\Contracts\Validation\Rule|array|string>
      */
@@ -67,13 +73,13 @@ class InviteTeamMember implements InvitesTeamMembers
                 }),
             ],
             'role' => Jetstream::hasRoles()
-                            ? ['required', 'string', new Role]
-                            : null,
+                ? ['required', 'string', new Role]
+                : null,
         ]);
     }
 
     /**
-     * Ensure that the user is not already on the team.
+     * Assegura't que l'usuari no estigui ja en l'equip.
      */
     protected function ensureUserIsNotAlreadyOnTeam(Team $team, string $email): Closure
     {
