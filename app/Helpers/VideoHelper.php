@@ -8,7 +8,6 @@ class VideoHelper
 {
     /**
      * Crea vídeos per defecte a la base de dades.
-     *
      * @return void
      */
     public static function createDefaultVideos()
@@ -27,7 +26,7 @@ class VideoHelper
                 'title' => 'Controladors a Laravel',
                 'description' => 'Aprèn com funcionen els controladors a Laravel i com gestionar les rutes.',
                 'url' => 'https://www.youtube.com/embed/0YxgCH2R2bE',
-                'published_at' => now()->subDays(1),
+                'published_at' => now(),
                 'previous' => 1,
                 'next' => 3,
                 'series_id' => 1,
@@ -36,7 +35,7 @@ class VideoHelper
                 'title' => 'Models a Laravel',
                 'description' => 'Exploració dels models a Laravel i com interactuar amb la base de dades.',
                 'url' => 'https://www.youtube.com/embed/f-pWNf0Ht1Y',
-                'published_at' => now()->subDays(2),
+                'published_at' => now(),
                 'previous' => 2,
                 'next' => null,
                 'series_id' => 1,

@@ -1,14 +1,8 @@
-<!DOCTYPE html>
-<html lang="ca">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $video->title }}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-900 text-gray-200 font-sans leading-relaxed tracking-normal">
+@extends('components.videos-app-layout')
 
-<div class="container mx-auto px-4 py-8">
+@section('title', $video->title)
+
+@section('content')
     <!-- Encapçalament -->
     <div class="bg-gray-800 rounded-lg shadow-lg p-6">
         <h1 class="text-3xl font-bold text-white">{{ $video->title }}</h1>
@@ -59,7 +53,4 @@
             <span class="text-gray-500">No hi ha vídeo següent</span>
         @endif
     </div>
-</div>
-
-</body>
-</html>
+@endsection
