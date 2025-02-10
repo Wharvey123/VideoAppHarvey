@@ -21,11 +21,7 @@ class User extends Authenticatable
     use TwoFactorAuthenticatable;
     use HasRoles; // Trait per gestionar rols i permisos
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
+    /** @var list<string> */
     protected $fillable = [
         'name',
         'email',
@@ -68,18 +64,14 @@ class User extends Authenticatable
         ];
     }
 
-    /**
-     * Funció de prova (per exemple, pot retornar informació addicional).
-     */
+    /** Funció de prova (per exemple, pot retornar informació addicional). */
     public function testedBy(): string
     {
         // Exemple: Retorna una cadena de prova o una relació si fos necessari
         return "Tested by " . $this->name;
     }
 
-    /**
-     * Comprova si l'usuari és superadmin.
-     */
+    /** Comprova si l'usuari és superadmin. */
     public function isSuperAdmin(): bool
     {
         return $this->super_admin === true;
