@@ -7,7 +7,7 @@ use App\Models\Video;
 class VideoHelper
 {
     /**
-     * Crea vídeos per defecte a la base de dades.
+     * Crea o actualitza vídeos per defecte a la base de dades.
      * @return void
      */
     public static function createDefaultVideos()
@@ -43,7 +43,10 @@ class VideoHelper
         ];
 
         foreach ($defaultVideos as $video) {
-            Video::create($video);
+            Video::updateOrCreate(
+                ['title' => $video['title']],
+                $video
+            );
         }
     }
 }

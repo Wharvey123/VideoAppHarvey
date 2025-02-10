@@ -2,23 +2,37 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use Illuminate\Database\Seeder;
+use App\Helpers\PermissionHelper;
 use App\Helpers\UserHelper;
 use App\Helpers\VideoHelper;
+use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        // Create the default user and professor
-        UserHelper::createDefaultUser();
-        UserHelper::createDefaultProfessor();
+        // Crear permisos
+        PermissionHelper::create_permissions();
 
-        // Crea vídeos per defecte
+        // Crear usuaris sense assignar current_team_id (aquest es farà a add_personal_team)
+        $defaultUser      = UserHelper::createDefaultUser();
+        $defaultProfessor = UserHelper::createDefaultProfessor();
+        $superadmin       = UserHelper::create_superadmin_user();
+        $regularUser      = UserHelper::create_regular_user();
+        $videoManager     = UserHelper::create_video_manager_user();
+
+        // Assignar equips personals i, per tant, current_team_id = user id
+        UserHelper::add_personal_team($defaultUser);
+        UserHelper::add_personal_team($defaultProfessor);
+        UserHelper::add_personal_team($superadmin);
+        UserHelper::add_personal_team($regularUser);
+        UserHelper::add_personal_team($videoManager);
+
+        // Assignar permisos segons rol (exemple)
+        $superadmin->givePermissionTo('manage videos');
+        $videoManager->givePermissionTo('manage videos');
+
+        // Crear vídeos per defecte
         VideoHelper::createDefaultVideos();
     }
 }

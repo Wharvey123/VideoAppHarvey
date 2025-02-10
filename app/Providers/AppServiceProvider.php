@@ -2,23 +2,18 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
+use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use App\Helpers\PermissionHelper;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
-    public function register(): void
-    {
-        //
-    }
-
-    /**
-     * Bootstrap any application services.
-     */
+    /** Registra les polítiques d'autorització. */
     public function boot(): void
     {
-        //
+        // Registra les polítiques, si n'hi ha
+        $this->registerPolicies();
+
+        // Defineix les portes d'accés
+        PermissionHelper::define_gates();
     }
 }

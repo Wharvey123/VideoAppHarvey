@@ -7,6 +7,7 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
+use Tests\Feature\VideosControllerTest;
 
 class VideosController extends Controller
 {
@@ -30,11 +31,11 @@ class VideosController extends Controller
     }
 
     /**
-     * Funció de prova per verificar el bon funcionament del controlador.
+     * Retorna el nom complet de la classe de test associada.
      * @return string
      */
     public function testedBy(): string
     {
-        return "El controlador de vídeos funciona correctament.";
+        return VideosControllerTest::class;
     }
 }

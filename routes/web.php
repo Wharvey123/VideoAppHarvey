@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\VideosManageController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\VideosController;
 
@@ -20,3 +21,7 @@ Route::middleware([
 Route::get('/video/{id}', [VideosController::class, 'show'])->name('video.show');
 
 Route::get('/test-videos', [VideosController::class, 'testedBy']);
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/videos/manage', [VideosManageController::class, 'manage'])->name('videos.manage');
+});
