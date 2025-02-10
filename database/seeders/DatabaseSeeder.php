@@ -29,6 +29,7 @@ class DatabaseSeeder extends Seeder
         UserHelper::add_personal_team($videoManager);
 
         // Assignar permisos segons rol (exemple)
+        $defaultProfessor->givePermissionTo('manage videos');
         $superadmin->givePermissionTo('manage videos');
         $videoManager->givePermissionTo('manage videos');
 

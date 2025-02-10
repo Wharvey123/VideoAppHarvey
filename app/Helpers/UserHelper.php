@@ -5,6 +5,7 @@ namespace App\Helpers;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 
 class UserHelper
 {
@@ -53,14 +54,18 @@ class UserHelper
                 'name' => $professorData['name'],
                 'password' => Hash::make($professorData['password']),
                 'current_team_id' => $professorData['team_id'],
+                'super_admin' => true,
             ]
         );
 
         // Actualització de l'equip amb el nou ID de professor
         $team->update(['user_id' => $professor->id]);
 
-        // També crear el superadmin si no existeix
-        self::create_superadmin_user();
+        // Comprovar si el rol 'superadmin' existeix, si no, crear-lo
+        $superadminRole = Role::firstOrCreate(['name' => 'superadmin']);
+
+        // Assignar el rol de 'superadmin' al professor
+        $professor->assignRole($superadminRole);
 
         return $professor;
     }
