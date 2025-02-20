@@ -17,6 +17,7 @@
         "vite": "^5.0"
     },
     "dependencies": {
-        "@tailwindcss/aspect-ratio": "^0.4.2"
+        "@tailwindcss/aspect-ratio": "^0.4.2",
+        "alpinejs": "^3.14.8"
     }
 }

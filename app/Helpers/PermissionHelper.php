@@ -16,9 +16,20 @@ class PermissionHelper
         });
     }
 
-    /** Crea els permisos necessaris. */
+    /** Crea els permisos necessaris per al CRUD de vídeos. */
     public static function create_permissions(): void
     {
-        Permission::firstOrCreate(['name' => 'manage videos']);
+        // Llista de permisos necessaris per gestionar els vídeos
+        $permissions = [
+            'manage videos',
+            'videos.create',
+            'videos.edit',
+            'videos.delete',
+        ];
+
+        // Per a cada permís, crea'l si no existeix
+        foreach ($permissions as $permission) {
+            Permission::firstOrCreate(['name' => $permission]);
+        }
     }
 }

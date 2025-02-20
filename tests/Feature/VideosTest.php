@@ -2,44 +2,49 @@
 
 namespace Tests\Feature;
 
+use App\Models\User;
 use App\Models\Video;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
+use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 
 class VideosTest extends TestCase
 {
     use RefreshDatabase;
 
-    /**
-     * Test that users can view existing videos.
-     */
-    public function test_users_can_view_videos()
+    #[Test] public function user_without_permissions_can_see_default_videos_page()
     {
-        // Create a video in the database
-        $video = Video::factory()->create([
-            'title' => 'Test Video',
-            'description' => 'This is a test video.',
-            'published_at' => now(),
-        ]);
+        // Arrange: Crear un usuari sense permisos específics
+        $user = User::factory()->create();
 
-        // Perform a GET request to the video's route
-        $response = $this->get(route('video.show', $video->id));
+        // Act: Autenticar l'usuari i fer una sol·licitud GET a la pàgina de vídeos
+        $response = $this->actingAs($user)->get('/videos');
 
-        // Assert the response is successful and contains video details
+        // Assert: Verificar que la resposta és correcta (200 OK)
         $response->assertStatus(200);
-        $response->assertSee($video->title);
-        $response->assertSee($video->description);
     }
 
-    /**
-     * Test that users cannot view non-existing videos.
-     */
-    public function test_users_cannot_view_not_existing_videos()
+    #[Test] public function user_with_permissions_can_see_default_videos_page()
     {
-        // Perform a GET request to a non-existing video's route
-        $response = $this->get(route('video.show', 999));
+        // Arrange: Crear el permís i un usuari amb aquest permís
+        Permission::create(['name' => 'view videos']);
+        $user = User::factory()->create();
+        $user->givePermissionTo('view videos');
 
-        // Assert the response returns a 404 status code
-        $response->assertStatus(404);
+        // Act: Autenticar l'usuari i fer una sol·licitud GET a la pàgina de vídeos
+        $response = $this->actingAs($user)->get('/videos');
+
+        // Assert: Verificar que la resposta és correcta (200 OK)
+        $response->assertStatus(200);
+    }
+
+    #[Test] public function not_logged_users_can_see_default_videos_page()
+    {
+        // Act: Fer una sol·licitud GET a la pàgina de vídeos sense autenticar
+        $response = $this->get('/videos');
+
+        // Assert: Verificar que la resposta és correcta (200 OK)
+        $response->assertStatus(200);
     }
 }

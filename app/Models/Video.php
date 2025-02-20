@@ -23,6 +23,12 @@ use Carbon\Carbon;
  * @property-read string|null $formatted_published_at
  * @property-read string|null $formatted_for_humans_published_at
  * @property-read int|null $published_at_timestamp
+ * @method static findOrFail($id)
+ * @method static create(array $data)
+ * @method static whereNotNull(string $string)
+ * @method static updateOrCreate(array $array, array $video)
+ * @method static first()
+ * @method static skip(int $int)
  */
 
 class Video extends Model
@@ -32,6 +38,10 @@ class Video extends Model
 
     /** @var array<string> */
     protected array $dates = ['published_at'];
+
+    protected $casts = [
+        'published_at' => 'datetime',
+    ];
 
     /** @return string|null */
     public function getFormattedPublishedAtAttribute(): ?string

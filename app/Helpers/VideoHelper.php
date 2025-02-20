@@ -6,12 +6,11 @@ use App\Models\Video;
 
 class VideoHelper
 {
-    /**
-     * Crea o actualitza vídeos per defecte a la base de dades.
-     * @return void
-     */
-    public static function createDefaultVideos()
+    /** Crea o actualitza vídeos per defecte a la base de dades.
+     * @return void */
+    public static function createDefaultVideos(): void
     {
+        // Definim els vídeos per defecte
         $defaultVideos = [
             [
                 'title' => 'Introducció a Laravel',
@@ -42,10 +41,11 @@ class VideoHelper
             ],
         ];
 
+        // Per a cada vídeo per defecte, crear o actualitzar el registre a la base de dades
         foreach ($defaultVideos as $video) {
             Video::updateOrCreate(
-                ['title' => $video['title']],
-                $video
+                ['title' => $video['title']], // Condició per determinar si el vídeo ja existeix
+                $video // Dades del vídeo
             );
         }
     }

@@ -57,6 +57,27 @@ El projecte està estructurat seguint una metodologia àgil basada en sprints, o
 - **Documentació:**
     - Actualització de la guia del projecte per incloure les noves funcionalitats i instruccions per a la gestió de permisos i programació de tasques.
 
+### Sprint 4: Gestió de Vídeos
+
+- **Correcció d'accés:**
+    - Ajustar accés a `/videos/manage` segons permisos.
+- **Controlador `VideosManageController`:**
+    - Desenvolupament de mètodes `testedBy`, `index`, `create`, `store`, `show`, `edit`, `update`, `delete`, `destroy`.
+- **Mètode `index`:**
+    - Afegit a `VideosController` per la pàgina pública.
+- **Vídeos per defecte:**
+    - Verificació de la creació de 3 vídeos per defecte amb `VideoHelper` i `DatabaseSeeder`.
+- **Vistes CRUD:**
+    - Creació de vistes (index, create, edit, delete) per a la gestió de vídeos.
+- **Rutes:**
+    - Definició de rutes CRUD amb middleware d'autenticació.
+- **Assignació de permisos:**
+    - Assignació de permisos específics als usuaris.
+- **Tests:**
+    - Desenvolupament de tests seguint TDD i el patró AAA.
+- **Interfície d'usuari:**
+    - Afegida la navegació (Navbar i Footer) a la plantilla principal.
+
 ---
 
 ## Properes passes

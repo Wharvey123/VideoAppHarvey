@@ -19,7 +19,7 @@ return new class extends Migration
             $table->timestamp('published_at')->nullable();
             $table->integer('previous')->nullable();
             $table->integer('next')->nullable();
-            $table->unsignedBigInteger('series_id');
+            $table->unsignedBigInteger('series_id')->nullable();
             $table->timestamps();
             //$table->foreign('series_id')->references('id')->on('series');
         });
