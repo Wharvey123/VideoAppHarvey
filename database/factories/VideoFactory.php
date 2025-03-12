@@ -10,7 +10,7 @@ class VideoFactory extends Factory
 {
     protected $model = Video::class;
 
-    public function definition()
+    public function definition(): array
     {
         return [
             'title' => $this->faker->sentence,
@@ -20,6 +20,7 @@ class VideoFactory extends Factory
             'previous' => null,
             'next' => null,
             'series_id' => 1,
+            'user_id' => 1,
         ];
     }
 }

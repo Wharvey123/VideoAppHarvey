@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 
 /**
@@ -34,7 +35,13 @@ use Carbon\Carbon;
 class Video extends Model
 {
     use HasFactory;
-    protected $fillable = ['title', 'description', 'url', 'previous', 'next', 'series_id', 'published_at',];
+    protected $fillable = ['title', 'description', 'url', 'previous', 'next', 'series_id', 'published_at', 'user_id'];
+
+    // Relació amb l'usuari
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 
     /** @var array<string> */
     protected array $dates = ['published_at'];

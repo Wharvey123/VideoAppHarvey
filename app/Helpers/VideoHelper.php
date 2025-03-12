@@ -20,6 +20,7 @@ class VideoHelper
                 'previous' => null,
                 'next' => 2,
                 'series_id' => 1,
+                'user_id' => 3,
             ],
             [
                 'title' => 'Controladors a Laravel',
@@ -29,6 +30,7 @@ class VideoHelper
                 'previous' => 1,
                 'next' => 3,
                 'series_id' => 1,
+                'user_id' => 3,
             ],
             [
                 'title' => 'Models a Laravel',
@@ -38,6 +40,7 @@ class VideoHelper
                 'previous' => 2,
                 'next' => null,
                 'series_id' => 1,
+                'user_id' => 3,
             ],
         ];
 

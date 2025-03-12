@@ -78,6 +78,19 @@ El projecte està estructurat seguint una metodologia àgil basada en sprints, o
 - **Interfície d'usuari:**
     - Afegida la navegació (Navbar i Footer) a la plantilla principal.
 
+### Sprint 5: - Gestió d'Usuaris
+
+- Creació del controlador **UsersManageController** amb les funcions: testedBy, index, store, edit, update, delete i destroy.
+- Creació del controlador **UsersController** amb les funcions index i show.
+- Creació de vistes per al CRUD d’usuaris (index, create, edit, delete) per usuaris amb permisos.
+- Creació de la vista pública **users/index.blade.php** amb cerca i accés al detall.
+- Actualització dels helpers per afegir els permisos de gestió d’usuaris i assignació als superadmins.
+- Desenvolupament de tests per comprovar l’accés segons els permisos:
+    - En **UserTest:** Tests per la visualització per defecte i del detall d’usuaris.
+    - En **UsersManageControllerTest:** Tests per la gestió (crear, editar, eliminar) segons els rols.
+- Creació de les rutes per a la gestió d’usuaris amb middleware d’autenticació.
+- Afegida la navegació entre pàgines i actualització de la documentació.
+
 ---
 
 ## Properes passes

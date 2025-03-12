@@ -11,39 +11,44 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Crear permisos (inclou 'videos.create', 'videos.edit' i 'videos.delete')
+        // Crear permisos per a la gestió de vídeos
         PermissionHelper::create_permissions();
 
+        // Crear permisos per a la gestió d'usuaris
+        PermissionHelper::create_user_management_permissions();
+
         // Crear usuaris sense assignar current_team_id (es farà a add_personal_team)
-        $defaultUser      = UserHelper::createDefaultUser();
-        $defaultProfessor = UserHelper::createDefaultProfessor();
-        $superadmin       = UserHelper::create_superadmin_user();
-        $regularUser      = UserHelper::create_regular_user();
-        $videoManager     = UserHelper::create_video_manager_user();
+        $users = [
+            'defaultUser'      => UserHelper::createDefaultUser(),
+            'defaultProfessor' => UserHelper::createDefaultProfessor(),
+            'superadmin'       => UserHelper::create_superadmin_user(),
+            'regularUser'      => UserHelper::create_regular_user(),
+            'videoManager'     => UserHelper::create_video_manager_user(),
+        ];
 
         // Assignar equips personals (current_team_id = user id)
-        UserHelper::add_personal_team($defaultUser);
-        UserHelper::add_personal_team($defaultProfessor);
-        UserHelper::add_personal_team($superadmin);
-        UserHelper::add_personal_team($regularUser);
-        UserHelper::add_personal_team($videoManager);
+        foreach ($users as $user) {
+            UserHelper::add_personal_team($user);
+        }
 
-        // Assignar permisos segons rol:
-        // Per exemple, el professor i el superadmin tenen 'manage videos'
-        $defaultProfessor->givePermissionTo('manage videos');
-        $superadmin->givePermissionTo('manage videos');
-
-        // Al Video Manager li assignem els permisos específics per al CRUD:
-        $videoManager->givePermissionTo('manage videos');
-        $videoManager->givePermissionTo('videos.create');
-        $videoManager->givePermissionTo('videos.edit');
-        $videoManager->givePermissionTo('videos.delete');
-
-        // Al Super Admin li assignem els permisos específics per al CRUD:
-        $superadmin->givePermissionTo('manage videos');
-        $superadmin->givePermissionTo('videos.create');
-        $superadmin->givePermissionTo('videos.edit');
-        $superadmin->givePermissionTo('videos.delete');
+        // Assignar permisos segons rol
+        $users['defaultProfessor']->givePermissionTo('manage videos');
+        $users['superadmin']->givePermissionTo([
+            'manage videos',
+            'videos.create',
+            'videos.edit',
+            'videos.delete',
+            'manage users',
+            'users.create',
+            'users.edit',
+            'users.delete',
+        ]);
+        $users['videoManager']->givePermissionTo([
+            'manage videos',
+            'videos.create',
+            'videos.edit',
+            'videos.delete',
+        ]);
 
         // Crear vídeos per defecte
         VideoHelper::createDefaultVideos();

@@ -52,18 +52,22 @@ class VideosManageController extends Controller
 
         // Validar les dades del formulari
         $data = $request->validate([
-            'title'       => 'required|string|max:255',
-            'description' => 'required|string',
-            'url'         => 'required|url',
-            'published_at'=> 'nullable|date',
-            //'series_id'   => 'required|integer|exists:series,id',
-            'series_id'   => 'nullable|integer|exists:series,id',
+            'title'        => 'required|string|max:255',
+            'description'  => 'required|string',
+            'url'          => 'required|url',
+            'published_at' => 'nullable|date',
+            'previous'     => 'nullable|integer',
+            'next'         => 'nullable|integer',
+            'series_id'    => 'nullable|integer|exists:series,id',
         ]);
+
+        // Assign current user's ID
+        $data['user_id'] = auth()->id(); // <-- Add this line
 
         // Crear el nou vídeo amb les dades validades
         Video::create($data);
 
-        // Redirigir a la vista de llista de vídeos amb un missatge d'èxit
+        // Redirigir...
         return redirect()->route('videos.manage.index')
             ->with('success', 'Vídeo creat correctament.');
     }
@@ -95,6 +99,8 @@ class VideosManageController extends Controller
             'description' => 'required|string',
             'url'         => 'required|url',
             'published_at'=> 'nullable|date',
+            'previous' => 'nullable|integer',
+            'next' => 'nullable|integer',
             'series_id'   => 'nullable|integer|exists:series,id',
         ]);
 

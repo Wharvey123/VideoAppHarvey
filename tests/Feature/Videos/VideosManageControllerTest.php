@@ -95,7 +95,11 @@ class VideosManageControllerTest extends TestCase
             'description' => 'Description',
             'url' => 'https://www.youtube.com/embed/gKz5NZNs15g',
             'published_at' => null,
-            'series_id' => null]
+            'series_id' => null,
+            'previous' => null,
+            'next' => null,
+            'user_id' => auth()->id()
+            ]
         );
 
         // Assert: Comprovar que el vídeo s'ha creat i redirigeix correctament
@@ -114,7 +118,10 @@ class VideosManageControllerTest extends TestCase
                 'description' => 'Description 2',
                 'url' => 'https://www.youtube.com/embed/gKz5NZNs15g',
                 'published_at' => null,
-                'series_id' => null]
+                'series_id' => null,
+                'previous' => null,
+                'next' => null,
+                'user_id' => auth()->id()]
         );
 
         // Assert: Comprovar que l'accés és denegat i el vídeo no s'ha creat
@@ -187,7 +194,10 @@ class VideosManageControllerTest extends TestCase
             'description' => 'Descripció existent',
             'url' => 'https://www.youtube.com/embed/existent',
             'published_at' => null,
-            'series_id' => null
+            'series_id' => null,
+            'previous' => null,
+            'next' => null,
+            'user_id' => auth()->id(),
         ]);
 
         // Dades per actualitzar
@@ -196,7 +206,10 @@ class VideosManageControllerTest extends TestCase
             'description' => 'Descripció actualitzada',
             'url' => 'https://www.youtube.com/embed/actualitzat',
             'published_at' => null,
-            'series_id' => null
+            'series_id' => null,
+            'previous' => null,
+            'next' => null,
+            'user_id' => auth()->id(),
         ];
 
         // Act: Enviar una sol·licitud PUT per actualitzar el vídeo
@@ -212,7 +225,10 @@ class VideosManageControllerTest extends TestCase
             'description' => 'Descripció actualitzada',
             'url' => 'https://www.youtube.com/embed/actualitzat',
             'published_at' => null,
-            'series_id' => null
+            'series_id' => null,
+            'previous' => null,
+            'next' => null,
+            'user_id' => auth()->id(),
         ]);
     }
 

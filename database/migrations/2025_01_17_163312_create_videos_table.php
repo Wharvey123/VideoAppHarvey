@@ -20,7 +20,9 @@ return new class extends Migration
             $table->integer('previous')->nullable();
             $table->integer('next')->nullable();
             $table->unsignedBigInteger('series_id')->nullable();
+            $table->unsignedBigInteger('user_id');
             $table->timestamps();
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             //$table->foreign('series_id')->references('id')->on('series');
         });
     }

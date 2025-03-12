@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
@@ -11,6 +12,11 @@ use Laravel\Jetstream\HasTeams;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles; // Afegit per spatie/laravel-permission
 
+/**
+ * @method static updateOrCreate(array $array, array $array1)
+ * @method static create(array $validated)
+ * @method static findOrFail($id)
+ */
 class User extends Authenticatable
 {
     use HasApiTokens;
@@ -76,4 +82,9 @@ class User extends Authenticatable
     {
         return $this->super_admin === true;
     }
+    public function team(): BelongsTo
+    {
+        return $this->belongsTo(Team::class);
+    }
+
 }
