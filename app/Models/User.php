@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
@@ -16,6 +17,9 @@ use Spatie\Permission\Traits\HasRoles; // Afegit per spatie/laravel-permission
  * @method static updateOrCreate(array $array, array $array1)
  * @method static create(array $validated)
  * @method static findOrFail($id)
+ * @method static where(string $string, mixed $email)
+ * @property mixed $super_admin
+ * @property mixed $name
  */
 class User extends Authenticatable
 {
@@ -86,5 +90,8 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Team::class);
     }
-
+    public function videos(): HasMany
+    {
+        return $this->hasMany(Video::class);
+    }
 }

@@ -28,10 +28,10 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
         return view('dashboard');
     })->name('dashboard');
 
-    // Rutes per a la gestió de vídeos (CRUD) només accessibles per usuaris autenticats
+    // Rutes per a la gestió de vídeos (CRUD)
     Route::prefix('videos/manage')
         ->name('videos.manage.')
-        ->middleware('can:manage-videos') // Middleware per a permisos de vídeos
+        ->middleware('can:manage-videos')
         ->group(function () {
             Route::get('/', [VideosManageController::class, 'index'])->name('index');
             Route::get('/create', [VideosManageController::class, 'create'])->name('create');
@@ -42,10 +42,10 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
             Route::get('/{id}/delete', [VideosManageController::class, 'delete'])->name('delete');
         });
 
-    // Rutes per a la gestió d'usuaris (CRUD) només accessibles per usuaris autenticats
+    // Rutes per a la gestió d'usuaris (CRUD)
     Route::prefix('usersmanage')
         ->name('users.manage.')
-        ->middleware('can:manage-users') // Middleware per a permisos d'usuaris
+        ->middleware('can:manage-users')
         ->group(function () {
             Route::get('/', [UsersManageController::class, 'index'])->name('index');
             Route::get('/create', [UsersManageController::class, 'create'])->middleware('can:create-users')->name('create');

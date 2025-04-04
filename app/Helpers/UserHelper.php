@@ -7,6 +7,9 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 
+/**
+ * @method static create_permissions()
+ */
 class UserHelper
 {
     public static function createDefaultUser()
