@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Helpers\UserHelper;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -18,8 +20,11 @@ use Spatie\Permission\Traits\HasRoles; // Afegit per spatie/laravel-permission
  * @method static create(array $validated)
  * @method static findOrFail($id)
  * @method static where(string $string, mixed $email)
+ * @method createPersonalTeam()
  * @property mixed $super_admin
  * @property mixed $name
+ * @property mixed $current_team_id
+ * @property-read string|null $profile_photo_url
  */
 class User extends Authenticatable
 {
@@ -84,7 +89,7 @@ class User extends Authenticatable
     /** Comprova si l'usuari és superadmin. */
     public function isSuperAdmin(): bool
     {
-        return $this->super_admin === true;
+        return $this->hasRole('superadmin');
     }
     public function team(): BelongsTo
     {
@@ -93,5 +98,21 @@ class User extends Authenticatable
     public function videos(): HasMany
     {
         return $this->hasMany(Video::class);
+    }
+
+    // Relació amb l'equip actual
+    public function currentTeam(): BelongsTo
+    {
+        return $this->belongsTo(Team::class, 'current_team_id');
+    }
+
+    // Relació amb tots els equips de l'usuari
+    public function teams(): BelongsToMany
+    {
+        return $this->belongsToMany(Team::class);
+    }
+    public function add_personal_team()
+    {
+        return UserHelper::add_personal_team($this);
     }
 }

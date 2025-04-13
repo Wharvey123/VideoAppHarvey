@@ -36,6 +36,12 @@ class UserHelper
         // Actualització de l'equip amb el nou ID d'usuari
         $team->update(['user_id' => $user->id]);
 
+        // Comprovar si el rol 'regular' existeix, si no, crear-lo
+        $regularRole = Role::firstOrCreate(['name' => 'regular']);
+
+        // Assignar el rol de 'regular' al user
+        $user->assignRole($regularRole);
+
         return $user;
     }
 
@@ -84,8 +90,7 @@ class UserHelper
 
     public static function create_superadmin_user()
     {
-        // Actualització o creació d'un usuari superadmin amb tots els permisos
-        return User::updateOrCreate(
+        $user = User::updateOrCreate(
             ['email' => 'superadmin@videosapp.com'],
             [
                 'name' => 'Super Admin',
@@ -94,24 +99,35 @@ class UserHelper
                 'super_admin' => true,
             ]
         );
+
+        // Assignar rol superadmin
+        $superadminRole = Role::firstOrCreate(['name' => 'superadmin']);
+        $user->assignRole($superadminRole);
+
+        return $user;
     }
 
     public static function create_regular_user()
     {
-        // Actualització o creació d'un usuari regular
-        return User::updateOrCreate(
+        $user = User::updateOrCreate(
             ['email' => 'regular@videosapp.com'],
             [
                 'name' => 'Regular',
                 'password' => Hash::make('123456789'),
                 'current_team_id' => 4,
             ]
-        );    }
+        );
+
+        // Assignar rol regular
+        $regularRole = Role::firstOrCreate(['name' => 'regular']);
+        $user->assignRole($regularRole);
+
+        return $user;
+    }
 
     public static function create_video_manager_user()
     {
-        // Actualització o creació d'un usuari gestor de vídeos
-        return User::updateOrCreate(
+        $user = User::updateOrCreate(
             ['email' => 'videosmanager@videosapp.com'],
             [
                 'name' => 'Video Manager',
@@ -119,6 +135,11 @@ class UserHelper
                 'current_team_id' => 5,
             ]
         );
-    }
 
+        // Assign videomanager role with series permissions
+        $videomanagerRole = Role::firstOrCreate(['name' => 'videomanager']);
+        $user->assignRole($videomanagerRole);
+
+        return $user;
+    }
 }

@@ -7,6 +7,7 @@ use App\Helpers\VideoHelper;
 use App\Models\User;
 use App\Models\Video;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -15,66 +16,89 @@ class HelpersTest extends TestCase
     use RefreshDatabase;
 
     #[Test]
-    public function crea_els_usuaris_per_defecte()
+    public function testCreaElsUsuarisPerDefecte()
     {
-        // Creació d'usuaris
+        // Creació d'usuaris per defecte
         $user = UserHelper::createDefaultUser();
         $professor = UserHelper::createDefaultProfessor();
 
-        // Default User
+        // Verifiquem el Default User
         $this->assertInstanceOf(User::class, $user);
         $this->assertEquals(1, $user->current_team_id);
-        // Verifiquem que l'usuari té l'equip 1
         $this->assertDatabaseHas('teams', [
-            'id' => 1,
-            'user_id' => 1,
-            'name' => 'Team 1',
+            'id'            => 1,
+            'user_id'       => $user->id,
+            'name'          => 'Team 1',
             'personal_team' => true,
         ]);
 
-        // Default Professor
+        // Verifiquem el Default Professor
         $this->assertInstanceOf(User::class, $professor);
         $this->assertEquals(2, $professor->current_team_id);
-        // Verifiquem que el professor té l'equip 2
         $this->assertDatabaseHas('teams', [
-            'id' => 2,
-            'user_id' => 2,
-            'name' => 'Team 2',
+            'id'            => 2,
+            'user_id'       => $professor->id,
+            'name'          => 'Team 2',
             'personal_team' => true,
         ]);
     }
 
-    #[Test]
-    public function crea_els_videos_per_defecte()
+    /**
+     * Prepara l'entorn per als tests dels vídeos.
+     */
+    private function prepareDefaultVideoEnvironment(): void
     {
+        // Crear usuaris necessaris si no existeixen
+        if (!User::find(1)) {
+            UserHelper::createDefaultUser();
+        }
+        if (!User::find(2)) {
+            UserHelper::createDefaultProfessor();
+        }
+        if (!User::find(3)) {
+            User::factory()->create([
+                'id'       => 3,
+                'name'     => 'Usuari Dummy',
+                'email'    => 'dummy@example.com',
+                'password' => bcrypt('password'),
+            ]);
+        }
+    }
+
+    #[Test]
+    public function testCreaElsVideosPerDefecte()
+    {
+        $this->prepareDefaultVideoEnvironment();
+
         // Creació dels vídeos per defecte
         VideoHelper::createDefaultVideos();
 
-        // Comprovar que s'han creat 3 vídeos
-        $this->assertCount(3, Video::all());
+        // Comprovar que s'han creat 9 vídeos (3 per cada sèrie)
+        $this->assertCount(9, Video::all());
 
-        // Verificar que el primer vídeo existeix a la base de dades
+        // Verificar que alguns vídeos existeixen a la base de dades
         $this->assertDatabaseHas('videos', [
-            'title' => 'Introducció a Laravel',
-            'description' => 'Un vídeo introductori per aprendre els conceptes bàsics de Laravel.',
-            'url' => 'https://www.youtube.com/embed/PGQxIILBb7M',
-            'series_id' => 1,
+            'title'       => 'The Walking Dead - Episodi 1',
+            'description' => 'Primer episodi de The Walking Dead.',
+            'url'         => 'https://www.youtube.com/embed/sfAc2U20uyg',
+            'user_id'     => 1,
+            'series_id'   => 1
         ]);
 
-        // Verificar que el segon vídeo existeix a la base de dades
         $this->assertDatabaseHas('videos', [
-            'title' => 'Controladors a Laravel',
-            'description' => 'Aprèn com funcionen els controladors a Laravel i com gestionar les rutes.',
-            'url' => 'https://www.youtube.com/embed/0YxgCH2R2bE',
-            'series_id' => 1,
+            'title'       => 'The 100 - Episodi 2',
+            'description' => 'Segon episodi de The 100.',
+            'url'         => 'https://www.youtube.com/embed/NepXdwVRVtY',
+            'user_id'     => 2,
+            'series_id'   => 2
         ]);
 
-        // Verificar que el tercer vídeo existeix a la base de dades
         $this->assertDatabaseHas('videos', [
-            'title' => 'Models a Laravel',
-            'description' => 'Exploració dels models a Laravel i com interactuar amb la base de dades.',
-            'url' => 'https://www.youtube.com/embed/f-pWNf0Ht1Y',
-            'series_id' => 1,
+            'title'       => 'The Witcher - Episodi 3',
+            'description' => 'Tercer episodi de The Witcher.',
+            'url'         => 'https://www.youtube.com/embed/SzS8Ao0H6Co',
+            'user_id'     => 3,
+            'series_id'   => 3
         ]);
     }
 }

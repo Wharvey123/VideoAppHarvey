@@ -1,14 +1,16 @@
 <?php
 
+
 namespace App\Http\Controllers;
 
 use App\Models\Video;
+use App\Models\Serie;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Tests\Feature\VideosControllerTest;
+use Tests\Feature\Videos\VideosControllerTest;
 
 class VideosManageController extends Controller
 {
@@ -21,36 +23,33 @@ class VideosManageController extends Controller
     // Mostra la llista de vídeos (CRUD)
     public function index(): View|Factory|Application
     {
-        // Comprovar permisos
         if (!auth()->user()->can('manage videos')) {
             abort(403, 'Unauthorized');
         }
-        // Obtenir tots els vídeos
         $videos = Video::all();
-        // Retornar la vista amb els vídeos
         return view('videos.manage.index', compact('videos'));
     }
 
     // Mostra el formulari de creació de vídeo
-    public function create(): View|Factory|Application
+    public function create(Request $request): View|Factory|Application
     {
-        // Comprovar permisos
         if (!auth()->user()->can('videos.create')) {
             abort(403, 'Unauthorized');
         }
-        // Retornar la vista del formulari de creació
-        return view('videos.manage.create');
+        // Obtenir totes les sèries disponibles per el selector
+        $series = Serie::all();
+        // Recollir l'id de la sèrie preseleccionada (si s'ha passat per paràmetre)
+        $seriesId = $request->query('series_id');
+        return view('videos.manage.create', compact('series', 'seriesId'));
     }
 
     // Desa un vídeo nou
     public function store(Request $request): RedirectResponse
     {
-        // Comprovar permisos
         if (!auth()->user()->can('videos.create')) {
             abort(403, 'Unauthorized');
         }
 
-        // Validar les dades del formulari
         $data = $request->validate([
             'title'        => 'required|string|max:255',
             'description'  => 'required|string',
@@ -61,28 +60,29 @@ class VideosManageController extends Controller
             'series_id'    => 'nullable|integer|exists:series,id',
         ]);
 
-        // Assign current user's ID
-        $data['user_id'] = auth()->id(); // <-- Add this line
+        $data['published_at'] = now();
+        $data['user_id'] = auth()->id();
 
-        // Crear el nou vídeo amb les dades validades
-        Video::create($data);
+        // Create video and store reference for redirection
+        $video = Video::create($data);
 
-        // Redirigir...
-        return redirect()->route('videos.manage.index')
+        // Redirect to the public show page for the created video
+        return redirect()->route('video.show', $video->id)
             ->with('success', 'Vídeo creat correctament.');
     }
+
 
     // Mostra el formulari d'edició de vídeo
     public function edit($id): View|Factory|Application
     {
-        // Comprovar permisos
         if (!auth()->user()->can('videos.edit')) {
             abort(403, 'Unauthorized');
         }
-        // Obtenir el vídeo per id
+
         $video = Video::findOrFail($id);
-        // Retornar la vista del formulari d'edició amb el vídeo
-        return view('videos.manage.edit', compact('video'));
+        $series = Serie::all(); // Fetch all series
+
+        return view('videos.manage.edit', compact('video', 'series')); // Pass series to the view
     }
 
     // Actualitza el vídeo
@@ -95,13 +95,13 @@ class VideosManageController extends Controller
 
         // Validar les dades del formulari
         $data = $request->validate([
-            'title'       => 'required|string|max:255',
-            'description' => 'required|string',
-            'url'         => 'required|url',
-            'published_at'=> 'nullable|date',
-            'previous' => 'nullable|integer',
-            'next' => 'nullable|integer',
-            'series_id'   => 'nullable|integer|exists:series,id',
+            'title'        => 'required|string|max:255',
+            'description'  => 'required|string',
+            'url'          => 'required|url',
+            'published_at' => 'nullable|date',  // Aquest camp també es pot sobreescriure si cal
+            'previous'     => 'nullable|integer',
+            'next'         => 'nullable|integer',
+            'series_id'    => 'nullable|integer|exists:series,id',
         ]);
 
         // Obtenir el vídeo per id

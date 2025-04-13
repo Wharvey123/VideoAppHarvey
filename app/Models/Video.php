@@ -76,4 +76,13 @@ class Video extends Model
         }
         return null;
     }
+
+    /**
+     * Relació 1:N amb la Serie.
+     */
+    public function serie(): BelongsTo
+    {
+        return $this->belongsTo(Serie::class, 'series_id');
+    }
+
 }

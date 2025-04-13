@@ -14,234 +14,144 @@ class VideosManageControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    #[Test] public function loginAsVideoManager()
+    private $videoManager;
+    private $regularUser;
+    private $superAdmin;
+
+    protected function setUp(): void
     {
+        parent::setUp();
         PermissionHelper::create_permissions();
-        // Arrange: Crear un usuari amb permís de 'manage videos'
-        $user = UserHelper::create_video_manager_user();
-        $user->givePermissionTo('manage videos');
-        $user->givePermissionTo('videos.create');
-        $user->givePermissionTo('videos.edit');
-        $user->givePermissionTo('videos.delete');
+        PermissionHelper::create_user_management_permissions();
+        PermissionHelper::create_series_management_permissions();
+        PermissionHelper::define_gates();
 
-        // Act: Autenticar l'usuari
-        $this->actingAs($user);
+        $this->videoManager = UserHelper::create_video_manager_user();
+        $this->videoManager->givePermissionTo('manage videos');
+        $this->videoManager->givePermissionTo('videos.create');
+        $this->videoManager->givePermissionTo('videos.edit');
+        $this->videoManager->givePermissionTo('videos.delete');
 
-        // Assert: Verificar que l'usuari està autenticat
-        $this->assertAuthenticatedAs($user);
+        $this->regularUser = UserHelper::create_regular_user();
+        $this->superAdmin = UserHelper::create_superadmin_user();
     }
 
-    #[Test] public function loginAsSuperAdmin()
+    #[Test]
+    public function user_with_permissions_can_see_add_videos()
     {
-        // Arrange: Crear un usuari amb rol de 'superadmin'
-        PermissionHelper::create_permissions();
-        $user = UserHelper::create_superadmin_user();
-        $user->givePermissionTo('manage videos');
-        $user->givePermissionTo('videos.create');
-        $user->givePermissionTo('videos.edit');
-        $user->givePermissionTo('videos.delete');
-
-        // Act: Autenticar l'usuari
-        $this->actingAs($user);
-
-        // Assert: Verificar que l'usuari està autenticat
-        $this->assertAuthenticatedAs($user);
-    }
-
-    #[Test] public function loginAsRegularUser()
-    {
-        // Arrange: Crear un usuari sense permisos especials
-        $user = User::factory()->create();
-
-        // Act: Autenticar l'usuari
-        $this->actingAs($user);
-
-        // Assert: Verificar que l'usuari està autenticat
-        $this->assertAuthenticatedAs($user);
-    }
-
-    #[Test]  public function user_with_permissions_can_see_add_videos()
-    {
-        // Arrange: Autenticar com a usuari amb permís
-        $this->loginAsVideoManager();
-
-        // Act: Accedir a la pàgina de creació de vídeos
+        $this->actingAs($this->videoManager);
         $response = $this->get(route('videos.manage.create'));
-
-        // Assert: Comprovar que la resposta és exitosa
         $response->assertStatus(200);
     }
 
-    #[Test]  public function user_without_videos_manage_create_cannot_see_add_videos()
+    #[Test]
+    public function user_without_videos_manage_create_cannot_see_add_videos()
     {
-        // Arrange: Autenticar com a usuari sense permís
-        $this->loginAsRegularUser();
-
-        // Act: Accedir a la pàgina de creació de vídeos
+        $this->actingAs($this->regularUser);
         $response = $this->get(route('videos.manage.create'));
-
-        // Assert: Comprovar que l'accés és denegat
         $response->assertStatus(403);
     }
 
-    #[Test]  public function user_with_permissions_can_store_videos()
+    #[Test]
+    public function user_with_permissions_can_store_videos()
     {
-        // Arrange: Autenticar com a usuari amb permís
-        $this->loginAsVideoManager();
-
-        // Act: Enviar una petició POST per crear un vídeo
+        $this->actingAs($this->videoManager);
         $response = $this->post(route('videos.manage.store'), [
             'title' => 'Vídeo',
-            'description' => 'Description',
+            'description' => 'Descripció',
             'url' => 'https://www.youtube.com/embed/gKz5NZNs15g',
-            'published_at' => null,
-            'series_id' => null,
-            'previous' => null,
-            'next' => null,
-            'user_id' => auth()->id()
-            ]
-        );
-
-        // Assert: Comprovar que el vídeo s'ha creat i redirigeix correctament
+            'user_id' => $this->videoManager->id
+        ]);
         $response->assertRedirect(route('videos.manage.index'));
         $this->assertDatabaseHas('videos', ['title' => 'Vídeo']);
     }
 
-    #[Test]  public function user_without_permissions_cannot_store_videos()
+    #[Test]
+    public function user_without_permissions_cannot_store_videos()
     {
-        // Arrange: Autenticar com a usuari sense permís
-        $this->loginAsRegularUser();
-
-        // Act: Enviar una petició POST per crear un vídeo
+        $this->actingAs($this->regularUser);
         $response = $this->post(route('videos.manage.store'), [
-                'title' => 'Vídeo 2',
-                'description' => 'Description 2',
-                'url' => 'https://www.youtube.com/embed/gKz5NZNs15g',
-                'published_at' => null,
-                'series_id' => null,
-                'previous' => null,
-                'next' => null,
-                'user_id' => auth()->id()]
-        );
-
-        // Assert: Comprovar que l'accés és denegat i el vídeo no s'ha creat
+            'title' => 'Vídeo 2',
+            'description' => 'Descripció 2',
+            'url' => 'https://www.youtube.com/embed/gKz5NZNs15g',
+            'user_id' => $this->regularUser->id
+        ]);
         $response->assertStatus(403);
-        $this->assertDatabaseMissing('videos', ['title' => 'Nou Vídeo']);
+        $this->assertDatabaseMissing('videos', ['title' => 'Vídeo 2']);
     }
 
-    #[Test]  public function user_with_permissions_can_destroy_videos()
+    #[Test]
+    public function user_with_permissions_can_destroy_videos()
     {
-        // Arrange: Autenticar com a usuari amb permís i crear un vídeo
-        $this->loginAsVideoManager();
+        $this->actingAs($this->videoManager);
         $video = Video::factory()->create();
-
-        // Act: Enviar una petició DELETE per eliminar el vídeo
         $response = $this->delete(route('videos.manage.destroy', $video->id));
-
-        // Assert: Comprovar que el vídeo s'ha eliminat i redirigeix correctament
         $response->assertRedirect(route('videos.manage.index'));
         $this->assertDatabaseMissing('videos', ['id' => $video->id]);
     }
 
-    #[Test] public function user_without_permissions_cannot_destroy_videos()
+    #[Test]
+    public function user_without_permissions_cannot_destroy_videos()
     {
-        // Arrange: Autenticar com a usuari sense permís i crear un vídeo
-        $this->loginAsRegularUser();
+        $this->actingAs($this->regularUser);
         $video = Video::factory()->create();
-
-        // Act: Enviar una petició DELETE per eliminar el vídeo
         $response = $this->delete(route('videos.manage.destroy', $video->id));
-
-        // Assert: Comprovar que l'accés és denegat i el vídeo no s'ha eliminat
         $response->assertStatus(403);
         $this->assertDatabaseHas('videos', ['id' => $video->id]);
     }
 
-    #[Test] public function user_with_permissions_can_see_edit_videos()
+    #[Test]
+    public function user_with_permissions_can_see_edit_videos()
     {
-        // Arrange: Autenticar com a usuari amb permís i crear un vídeo
-        $this->loginAsVideoManager();
+        $this->actingAs($this->videoManager);
         $video = Video::factory()->create();
-
-        // Act: Accedir a la pàgina d'edició del vídeo
         $response = $this->get(route('videos.manage.edit', $video->id));
-
-        // Assert: Comprovar que la resposta és exitosa
         $response->assertStatus(200);
     }
 
-    #[Test] public function user_without_permissions_cannot_see_edit_videos()
+    #[Test]
+    public function user_without_permissions_cannot_see_edit_videos()
     {
-        // Arrange: Autenticar com a usuari sense permís i crear un vídeo
-        $this->loginAsRegularUser();
+        $this->actingAs($this->regularUser);
         $video = Video::factory()->create();
-
-        // Act: Accedir a la pàgina d'edició del vídeo
         $response = $this->get(route('videos.manage.edit', $video->id));
-
-        // Assert: Comprovar que l'accés és denegat
         $response->assertStatus(403);
     }
 
-    #[Test] public function user_with_permissions_can_update_videos()
+    #[Test]
+    public function user_with_permissions_can_update_videos()
     {
-        // Arrange: Autenticar com a usuari amb permís
-        $this->loginAsVideoManager();
-
-        // Crear un vídeo existent per actualitzar
-        $video = Video::create([
-            'title' => 'Vídeo existent',
-            'description' => 'Descripció existent',
-            'url' => 'https://www.youtube.com/embed/existent',
-            'published_at' => null,
-            'series_id' => null,
-            'previous' => null,
-            'next' => null,
-            'user_id' => auth()->id(),
-        ]);
-
-        // Dades per actualitzar
+        $this->actingAs($this->videoManager);
+        $video = Video::factory()->create();
         $updatedData = [
             'title' => 'Títol actualitzat',
             'description' => 'Descripció actualitzada',
             'url' => 'https://www.youtube.com/embed/actualitzat',
-            'published_at' => null,
-            'series_id' => null,
-            'previous' => null,
-            'next' => null,
-            'user_id' => auth()->id(),
+            'user_id' => $this->videoManager->id
         ];
-
-        // Act: Enviar una sol·licitud PUT per actualitzar el vídeo
-        $response = $this->put(route('videos.manage.update', ['id' => $video->id]), $updatedData);
-
-        // Assert: Comprovar que la resposta és una redirecció a la pàgina d'índex de vídeos
+        $response = $this->put(route('videos.manage.update', $video->id), $updatedData);
         $response->assertRedirect(route('videos.manage.index'));
-
-        // Assert: Comprovar que les dades del vídeo s'han actualitzat a la base de dades
         $this->assertDatabaseHas('videos', [
             'id' => $video->id,
             'title' => 'Títol actualitzat',
             'description' => 'Descripció actualitzada',
             'url' => 'https://www.youtube.com/embed/actualitzat',
-            'published_at' => null,
-            'series_id' => null,
-            'previous' => null,
-            'next' => null,
-            'user_id' => auth()->id(),
+            'user_id' => $this->videoManager->id
         ]);
     }
 
-    #[Test] public function user_without_permissions_cannot_update_videos()
+    #[Test]
+    public function user_without_permissions_cannot_update_videos()
     {
-        // Arrange
-        $this->loginAsRegularUser();
-        $videoData = ['title' => 'New Title', 'description' => 'Updated description'];
-
-        // Act: Intentar actualitzar el vídeo
-        $response = $this->put(route('videos.manage.update', ['id' => 1]), $videoData);
-
-        // Assert: Verificar que l'usuari rep un error 403
+        $this->actingAs($this->regularUser);
+        $video = Video::factory()->create();
+        $updatedData = [
+            'title' => 'Títol actualitzat',
+            'description' => 'Descripció actualitzada',
+            'url' => 'https://www.youtube.com/embed/actualitzat',
+            'user_id' => $this->regularUser->id
+        ];
+        $response = $this->put(route('videos.manage.update', $video->id), $updatedData);
         $response->assertStatus(403);
     }
 
@@ -249,7 +159,7 @@ class VideosManageControllerTest extends TestCase
     public function user_with_permissions_can_manage_videos()
     {
         // Arrange
-        $this->loginAsVideoManager();
+        $this->actingAs($this->videoManager);
 
         // Crear tres vídeos
         Video::factory()->count(3)->create();
@@ -261,15 +171,17 @@ class VideosManageControllerTest extends TestCase
         $response->assertStatus(200);
 
         // Verificar que els vídeos es mostren a la pàgina
-        $response->assertSee(Video::first()->title);
-        $response->assertSee(Video::skip(1)->first()->title);
-        $response->assertSee(Video::skip(2)->first()->title);
+        $videos = Video::all();
+        foreach ($videos as $video) {
+            $response->assertSee($video->title);
+        }
     }
 
-    #[Test] public function regular_users_cannot_manage_videos()
+    #[Test]
+    public function regular_users_cannot_manage_videos()
     {
         // Arrange
-        $this->loginAsRegularUser();
+        $this->actingAs($this->regularUser);
 
         // Act: Intentar accedir a la pàgina de gestió de vídeos
         $response = $this->get(route('videos.manage.index'));
@@ -287,10 +199,11 @@ class VideosManageControllerTest extends TestCase
         $response->assertRedirect(route('login'));
     }
 
-    #[Test] public function superadmins_can_manage_videos()
+    #[Test]
+    public function superadmins_can_manage_videos()
     {
         // Arrange
-        $this->loginAsSuperAdmin();
+        $this->actingAs($this->superAdmin);
 
         // Act: Accedir a la pàgina de gestió de vídeos
         $response = $this->get(route('videos.manage.index'));

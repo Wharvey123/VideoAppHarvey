@@ -8,7 +8,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Tests\Feature\VideosControllerTest;
+use Tests\Feature\Videos\VideosControllerTest;
 
 class VideosController extends Controller
 {

@@ -18,10 +18,6 @@ class UsersController extends Controller
      */
     public function index(Request $request): View|Factory|Application
     {
-        if (!auth()->check()) {
-            abort(403, 'Unauthorized action.');
-        }
-
         $query = User::query();
         if ($search = $request->get('search')) {
             $query->where('name', 'like', "%{$search}%")
@@ -39,10 +35,6 @@ class UsersController extends Controller
      */
     public function show($id): View|Factory|Application
     {
-        if (!auth()->check()) {
-            abort(403, 'Unauthorized action.');
-        }
-
         $user = User::findOrFail($id);
         $videos = $user->videos ?? [];
         return view('users.show', compact('user', 'videos'));

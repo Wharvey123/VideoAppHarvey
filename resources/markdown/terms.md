@@ -91,6 +91,20 @@ El projecte està estructurat seguint una metodologia àgil basada en sprints, o
 - Creació de les rutes per a la gestió d’usuaris amb middleware d’autenticació.
 - Afegida la navegació entre pàgines i actualització de la documentació.
 
+# Sprint 6 - Gestió de Sèries i Assignació de Vídeos a Sèries
+
+**Funcionalitats implementades:**
+- Creació de la migració per a la taula `series`.
+- Creació del model `Serie` amb les relacions i accessors.
+- Actualització del model `Video` per afegir la relació amb `Serie`.
+- Desenvolupament dels controladors `SeriesController` (pública) i `SeriesManageController` (CRUD).
+- Creació d'un helper (`SeriesHelper`) per generar 3 sèries per defecte.
+- Creació de vistes per al CRUD de sèries i la visualització pública.
+- Definició de rutes per a la gestió de sèries.
+- Implementació de tests utilitzant TDD/AAA per comprovar la funcionalitat.
+- Assignació i creació de permisos per a la gestió de sèries.
+
+
 ---
 
 ## Properes passes

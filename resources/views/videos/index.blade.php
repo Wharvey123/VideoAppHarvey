@@ -19,6 +19,16 @@
     <div class="container mx-auto px-4">
         <!-- Títol principal -->
         <h1 class="text-3xl font-bold text-white my-6">VideosApp</h1>
+        @auth
+            @can('videos.create')
+                <div class="mb-6">
+                    <a href="{{ route('videos.manage.create') }}"
+                       class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors">
+                        Afegir Nou Vídeo
+                    </a>
+                </div>
+            @endcan
+        @endauth
 
         <!-- Grid de vídeos, similar a YouTube -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

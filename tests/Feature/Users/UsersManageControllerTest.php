@@ -13,6 +13,15 @@ class UsersManageControllerTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        PermissionHelper::create_permissions();
+        PermissionHelper::create_series_management_permissions();
+        PermissionHelper::create_user_management_permissions();
+        PermissionHelper::define_gates();
+    }
+
     #[Test]
     public function loginAsVideoManager()
     {
@@ -53,7 +62,7 @@ class UsersManageControllerTest extends TestCase
     public function loginAsRegularUser()
     {
         // Arrange: Crear un usuari sense permisos especials
-        $user = User::factory()->create();
+        $user = UserHelper::create_regular_user();
 
         // Act: Autenticar l'usuari
         $this->actingAs($user);
@@ -85,7 +94,7 @@ class UsersManageControllerTest extends TestCase
         $response = $this->get('/usersmanage/create');
 
         // Assert: Verificar que l'accés està prohibit
-        $response->assertStatus(500);
+        $response->assertStatus(403);
     }
 
     #[Test]
@@ -98,6 +107,7 @@ class UsersManageControllerTest extends TestCase
             'name' => 'Nou Usuari',
             'email' => 'nou@example.com',
             'password' => 'password',
+            'roles'    => ['superadmin']
         ];
 
         // Act: Emmagatzemar un nou usuari
@@ -128,7 +138,7 @@ class UsersManageControllerTest extends TestCase
         $response = $this->post('/usersmanage', $newUserData);
 
         // Assert: Verificar que l'accés està prohibit
-        $response->assertStatus(500);
+        $response->assertStatus(403);
     }
 
     #[Test]
@@ -159,7 +169,7 @@ class UsersManageControllerTest extends TestCase
         $response = $this->delete("/usersmanage/{$userToDelete->id}");
 
         // Assert: Verificar que l'accés està prohibit
-        $response->assertStatus(500);
+        $response->assertStatus(403);
     }
 
     #[Test]
@@ -189,7 +199,7 @@ class UsersManageControllerTest extends TestCase
         $response = $this->get("/usersmanage/{$userToEdit->id}/edit");
 
         // Assert: Verificar que l'accés està prohibit
-        $response->assertStatus(500);
+        $response->assertStatus(403);
     }
 
     #[Test]
@@ -202,6 +212,7 @@ class UsersManageControllerTest extends TestCase
         $updatedData = [
             'name' => 'Usuari Actualitzat',
             'email' => $userToUpdate->email, // Mantenir el mateix email per evitar errors de validació
+            'roles' => ['superadmin'], // afegim el camp roles
         ];
 
         // Act: Actualitzar l'usuari
@@ -225,7 +236,7 @@ class UsersManageControllerTest extends TestCase
         $response = $this->put("/usersmanage/{$userToUpdate->id}", $updatedData);
 
         // Assert: Verificar que l'accés està prohibit
-        $response->assertStatus(500);
+        $response->assertStatus(403);
     }
 
     #[Test]
@@ -251,7 +262,7 @@ class UsersManageControllerTest extends TestCase
         $response = $this->get('/usersmanage');
 
         // Assert: Verificar que l'accés està prohibit
-        $response->assertStatus(500);
+        $response->assertStatus(403);
     }
 
     #[Test]
