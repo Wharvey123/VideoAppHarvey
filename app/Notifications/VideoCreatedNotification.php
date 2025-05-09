@@ -14,41 +14,19 @@ class VideoCreatedNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    /**
-     * @var Video
-     */
     public Video $video;
 
-    /**
-     * Create a new notification instance.
-     *
-     * @param  Video  $video
-     * @return void
-     */
     public function __construct(Video $video)
     {
         $this->video = $video;
-        // Opcional: log per a debug quan es crea la notificació
         Log::info('VideoCreatedNotification instanciada per vídeo ID: ' . $video->id);
     }
 
-    /**
-     * Get the notification’s delivery channels.
-     *
-     * @param  mixed  $notifiable
-     * @return array<string>
-     */
     public function via($notifiable): array
     {
         return ['mail', 'broadcast'];
     }
 
-    /**
-     * Get the mail representation of the notification.
-     *
-     * @param  mixed  $notifiable
-     * @return MailMessage
-     */
     public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
@@ -59,12 +37,6 @@ class VideoCreatedNotification extends Notification implements ShouldQueue
             ->line(__('Gràcies per utilitzar la nostra aplicació!'));
     }
 
-    /**
-     * Get the broadcastable representation of the notification.
-     *
-     * @param  mixed  $notifiable
-     * @return BroadcastMessage
-     */
     public function toBroadcast($notifiable): BroadcastMessage
     {
         return new BroadcastMessage([
@@ -74,12 +46,6 @@ class VideoCreatedNotification extends Notification implements ShouldQueue
         ]);
     }
 
-    /**
-     * Optional: array representation for database channel, if needed later.
-     *
-     * @param  mixed  $notifiable
-     * @return array<string, mixed>
-     */
     public function toArray($notifiable): array
     {
         return [
