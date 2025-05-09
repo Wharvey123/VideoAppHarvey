@@ -42,7 +42,10 @@ class VideoNotificationsTest extends TestCase
         $this->videoManager->givePermissionTo('videos.create');
         $this->videoManager->givePermissionTo('manage videos');
 
-        $this->admin = UserHelper::create_superadmin_user(); // ja té tots els permisos via role superadmin
+        // Crear super-admin per boolean super_admin
+        $this->admin = User::factory()->create([
+            'super_admin' => true,
+        ]);
     }
 
     #[Test]
@@ -59,7 +62,7 @@ class VideoNotificationsTest extends TestCase
     }
 
     #[Test]
-    public function test_push_notification_is_sent_when_video_is_created()
+    public function test_notifications_are_sent_when_video_is_created()
     {
         Notification::fake();
 
@@ -72,7 +75,9 @@ class VideoNotificationsTest extends TestCase
             [$this->admin],
             VideoCreatedNotification::class,
             function ($notification, $channels) use ($video) {
+                // Ha d'enviar-se per mail i broadcast
                 return in_array('broadcast', $channels, true)
+                    && in_array('mail', $channels, true)
                     && $notification->video->id === $video->id;
             }
         );
