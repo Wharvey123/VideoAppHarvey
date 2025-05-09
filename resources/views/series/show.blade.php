@@ -1,69 +1,68 @@
-@php use Illuminate\Support\Str; @endphp
 @extends('layouts.VideosAppLayout')
 
 @section('content')
+    @php
+        $user      = auth()->user();
+        $isManager = $user && $user->can('manage-series');
+        $owns      = $user && $serie->user_name === $user->name;
+        $showBtns  = $isManager || $owns;
+        $redirect  = urlencode(route('series.index')); // FIXED: Redirect to series index
+    @endphp
+
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Banner de la sèrie: imatge limitada en amplada -->
+        {{-- Banner --}}
         <div class="relative w-full max-w-4xl mx-auto my-6">
-            <img src="{{ $serie->image }}" alt="{{ $serie->title }}" class="w-full h-48 object-cover rounded-lg shadow">
-            <div class="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center rounded-lg">
-                <h1 class="text-3xl font-bold text-white text-center px-4">{{ $serie->title }}</h1>
-            </div>
-        </div>
-
-        <!-- Botó per afegir un nou vídeo a aquesta sèrie -->
-        <div class="flex justify-end mb-4">
-            <a href="{{ route('videos.manage.create', ['series_id' => $serie->id]) }}"
-               class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors">
-                Crear Video
-            </a>
-        </div>
-
-        <!-- Informació del creador -->
-        <div
-            class="bg-gray-800 rounded-lg p-6 shadow-lg flex flex-col md:flex-row md:items-center md:justify-between mb-8">
-            <div class="flex items-center">
-                @if($serie->user_photo_url)
-                    <img src="{{ $serie->user_photo_url }}" alt="{{ $serie->user_name }}"
-                         class="w-16 h-16 rounded-full mr-4 border-2 border-white">
-                @else
-                    <span class="text-gray-500">Sense foto</span>
+            <img src="{{ $serie->image }}" alt="{{ $serie->title }}"
+                 class="w-full h-48 object-cover rounded-lg shadow">
+            <div class="absolute inset-0 bg-black bg-opacity-50 flex justify-between items-start p-6 rounded-lg">
+                <h1 class="text-3xl font-bold text-white">{{ $serie->title }}</h1>
+                @if($showBtns)
+                    <div class="flex space-x-4">
+                        <a href="{{ route('series.manage.edit', $serie->id) }}?redirect={{ $redirect }}"
+                           class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700">
+                            Editar
+                        </a>
+                        <a href="{{ route('series.manage.delete', $serie->id) }}?redirect={{ $redirect }}"
+                           class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+                            Eliminar
+                        </a>
+                    </div>
                 @endif
-                <div class="text-white">
-                    <p class="text-xl font-semibold">Creador: {{ $serie->user_name }}</p>
-                    <p class="text-sm text-gray-300">Publicat
-                        el: {{ \Carbon\Carbon::parse($serie->published_at)->format('d/m/Y') }}</p>
-                </div>
             </div>
         </div>
 
-        <!-- Secció de descripció -->
-        <div class="pt-6 pb-4 border-b border-gray-700 mb-8">
-            <h2 class="text-2xl font-bold text-white mb-4">Descripció</h2>
-            <p class="text-gray-300 leading-relaxed">{{ $serie->description }}</p>
+        {{-- Creator info --}}
+        <div class="bg-gray-800 rounded-lg p-6 shadow-lg mb-8 flex items-center space-x-4">
+            @if($serie->user_photo_url)
+                <img src="{{ $serie->user_photo_url }}" alt="{{ $serie->user_name }}"
+                     class="w-16 h-16 rounded-full border-2 border-white">
+            @endif
+            <div class="text-white">
+                <p class="font-semibold">Creador: {{ $serie->user_name }}</p>
+                <p class="text-sm text-gray-400">Publicat el: {{ \Carbon\Carbon::parse($serie->published_at)->format('d/m/Y') }}</p>
+            </div>
         </div>
 
-        <!-- Secció d'episodis -->
-        <div class="pt-6">
-            <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
-                <svg class="h-6 w-6 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path
-                        d="M15 10l4.5-2.3a1 1 0 0 1 1.5.9v6.8a1 1 0 0 1-1.5.9L15 14M5 18h8a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2z"
-                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                Episodis disponibles
-            </h2>
+        {{-- Description --}}
+        <div class="bg-gray-800 rounded-lg p-6 shadow-lg mb-8">
+            <h2 class="text-2xl font-bold text-white mb-4">Descripció</h2>
+            <p class="text-gray-300">{{ $serie->description }}</p>
+        </div>
+
+        {{-- Videos grid --}}
+        <div>
+            <h2 class="text-2xl font-bold text-white mb-4">Episodis disponibles</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                @forelse ($serie->videos as $video)
+                @forelse($serie->videos as $video)
                     <a href="{{ route('video.show', $video->id) }}"
-                       class="bg-gray-700 rounded-lg overflow-hidden hover:shadow-lg transition duration-300">
+                       class="bg-gray-700 rounded-lg overflow-hidden hover:shadow-lg transition">
                         @php
-                            preg_match('/embed\/([^?]+)/', $video->url, $matches);
-                            $videoId = $matches[1] ?? null;
+                            preg_match('/embed\/([^?]+)/', $video->url, $m);
+                            $vid = $m[1] ?? null;
                         @endphp
-                        @if($videoId)
-                            <img src="https://img.youtube.com/vi/{{ $videoId }}/mqdefault.jpg" alt="{{ $video->title }}"
-                                 class="w-full h-40 object-cover">
+                        @if($vid)
+                            <img src="https://img.youtube.com/vi/{{ $vid }}/mqdefault.jpg"
+                                 class="w-full h-40 object-cover" alt="{{ $video->title }}">
                         @else
                             <div class="bg-gray-600 h-40 flex items-center justify-center">
                                 <span class="text-white">No imatge</span>
@@ -71,7 +70,7 @@
                         @endif
                         <div class="p-4">
                             <h3 class="text-lg font-medium text-white">{{ $video->title }}</h3>
-                            <p class="mt-2 text-gray-400 text-sm">{{ Str::limit($video->description, 60) }}</p>
+                            <p class="text-gray-400 text-sm mt-2">{{ \Illuminate\Support\Str::limit($video->description, 60) }}</p>
                         </div>
                     </a>
                 @empty

@@ -21,6 +21,7 @@ use Spatie\Permission\Traits\HasRoles; // Afegit per spatie/laravel-permission
  * @method static findOrFail($id)
  * @method static where(string $string, mixed $email)
  * @method createPersonalTeam()
+ * @method static role(string $string)
  * @property mixed $super_admin
  * @property mixed $name
  * @property mixed $current_team_id

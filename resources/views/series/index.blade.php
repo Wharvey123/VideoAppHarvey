@@ -4,18 +4,28 @@
 
 @section('content')
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Encabezado: títol i cercador -->
+        <!-- Encabezado: títol, cercador i crear sèrie -->
         <div class="flex justify-between items-center my-6 sm:my-8">
             <h1 class="text-3xl font-bold text-white">Totes les Sèries</h1>
-            <form method="GET" action="{{ route('series.index') }}" class="flex items-center">
-                <input type="text" name="search" placeholder="Cercar sèries..." value="{{ request('search') }}"
-                       class="w-full px-4 py-2 rounded-l-lg bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm">
-                <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-r-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M12.9 14.32a8 8 0 111.414-1.414l4.387 4.386a1 1 0 01-1.414 1.415l-4.387-4.387zM14 8a6 6 0 11-12 0 6 6 0 0112 0z" clip-rule="evenodd" />
-                    </svg>
-                </button>
-            </form>
+
+            <div class="flex space-x-4">
+                <form method="GET" action="{{ route('series.index') }}" class="flex items-center">
+                    <input type="text" name="search" placeholder="Cercar sèries..." value="{{ request('search') }}"
+                           class="w-full px-4 py-2 rounded-l-lg bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm">
+                    <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-r-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M12.9 14.32a8 8 0 111.414-1.414l4.387 4.386a1 1 0 01-1.414 1.415l-4.387-4.387zM14 8a6 6 0 11-12 0 6 6 0 0112 0z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </form>
+
+                @auth
+                    <a href="{{ route('series.manage.create') }}"
+                       class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors">
+                        Afegir Nova Sèrie
+                    </a>
+                @endauth
+            </div>
         </div>
 
         <!-- Grid de targetes de sèries -->

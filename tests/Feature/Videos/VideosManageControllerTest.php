@@ -56,12 +56,16 @@ class VideosManageControllerTest extends TestCase
     public function user_with_permissions_can_store_videos()
     {
         $this->actingAs($this->videoManager);
-        $response = $this->post(route('videos.manage.store'), [
-            'title' => 'Vídeo',
+
+        $response = $this->post(route('videos.manage.store', [
+            'redirect' => route('videos.manage.index')
+        ]), [
+            'title'       => 'Vídeo',
             'description' => 'Descripció',
-            'url' => 'https://www.youtube.com/embed/gKz5NZNs15g',
-            'user_id' => $this->videoManager->id
+            'url'         => 'https://www.youtube.com/embed/gKz5NZNs15g',
+            'series_id'   => null,
         ]);
+
         $response->assertRedirect(route('videos.manage.index'));
         $this->assertDatabaseHas('videos', ['title' => 'Vídeo']);
     }

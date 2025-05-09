@@ -5,6 +5,8 @@
         <h1 class="text-2xl font-bold mb-4 text-white">Afegir Nou Vídeo</h1>
         <form action="{{ route('videos.manage.store') }}" method="POST">
             @csrf
+            <input type="hidden" name="redirect" value="{{ url()->previous() }}">
+            @csrf
             <div class="mb-4">
                 <label for="title" class="block text-sm font-medium text-white">Títol</label>
                 <input type="text" name="title" id="title" placeholder="Introdueix el títol"
@@ -30,9 +32,8 @@
                 </select>
             </div>
             <div class="flex justify-between mt-4">
-                <a href="{{ route('videos.manage.index') }}"
-                   class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700 transition-colors"
-                   style="width: 150px; display: inline-block; text-align: center;">
+                <a href="{{ url()->previous() }}"
+                   class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700 transition-colors">
                     Tornar Enrere
                 </a>
                 <button type="submit"

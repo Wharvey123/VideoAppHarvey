@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @method static create(array $data)
+ */
 class Serie extends Model
 {
     use HasFactory;

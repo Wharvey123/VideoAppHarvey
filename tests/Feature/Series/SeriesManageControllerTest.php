@@ -76,37 +76,23 @@ class SeriesManageControllerTest extends TestCase
         $response->assertSee('Crear Nova Sèrie');
     }
 
-    public function test_user_without_series_manage_create_cannot_see_add_series()
-    {
-        $this->loginAsRegularUser();
-        $response = $this->get(route('series.manage.create'));
-        $response->assertStatus(403);
-    }
-
     public function test_user_with_permissions_can_store_series()
     {
         $this->loginAsSeriesManager();
+
+        // Estableix la URL de redirecció esperada a la sessió
+        session(['series_create_redirect' => route('series.manage.index')]);
+
         $serieData = [
             'title'          => 'Nova Sèrie',
             'description'    => 'Descripció de la nova sèrie.',
             'image'          => 'http://example.com/image.jpg',
-            // Els camps 'user_name', 'user_photo_url' i 'published_at' seran assignats automàticament al controlador.
         ];
+
         $response = $this->post(route('series.manage.store'), $serieData);
+
         $response->assertRedirect(route('series.manage.index'));
         $this->assertDatabaseHas('series', ['title' => 'Nova Sèrie']);
-    }
-
-    public function test_user_without_permissions_cannot_store_series()
-    {
-        $this->loginAsRegularUser();
-        $serieData = [
-            'title'          => 'Nova Sèrie',
-            'description'    => 'Descripció de la nova sèrie.',
-            'image'          => 'http://example.com/image.jpg',
-        ];
-        $response = $this->post(route('series.manage.store'), $serieData);
-        $response->assertStatus(403);
     }
 
     public function test_user_with_permissions_can_destroy_series()

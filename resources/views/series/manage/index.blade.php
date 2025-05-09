@@ -11,6 +11,7 @@
         <div class="w-full lg:w-3/4 px-4 py-6">
             <div class="bg-gray-100 rounded-lg shadow-xl overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-300">
+                    {{-- Table headers --}}
                     <thead class="bg-gray-800">
                     <tr>
                         <th class="px-6 py-3 text-left text-white font-semibold">Portada</th>
@@ -20,10 +21,10 @@
                         <th class="px-6 py-3 text-center text-white font-semibold">Accions</th>
                     </tr>
                     </thead>
+                    {{-- Table body --}}
                     <tbody class="bg-white divide-y divide-gray-200">
                     @foreach($series as $serie)
                         <tr class="hover:bg-gray-50 transition-colors">
-                            <!-- Portada de la sèrie amb imatge lleugerament més gran i rectangular -->
                             <td class="px-6 py-4">
                                 @if($serie->image)
                                     <img src="{{ $serie->image }}" alt="Portada de la sèrie" class="w-18 h-12 object-cover rounded">
@@ -46,8 +47,11 @@
                             <!-- Accions -->
                             <td class="px-6 py-4">
                                 <div class="flex justify-center space-x-4">
-                                    <a href="{{ route('series.manage.edit', $serie->id) }}" class="text-blue-600 hover:text-blue-800 font-medium">Editar</a>
-                                    <a href="{{ route('series.manage.delete', $serie->id) }}" class="text-red-600 hover:text-red-800 font-medium">Eliminar</a>
+                                    {{-- No redirect parameter for manage links --}}
+                                    <a href="{{ route('series.manage.edit', $serie->id) }}"
+                                       class="text-blue-600 hover:text-blue-800 font-medium">Editar</a>
+                                    <a href="{{ route('series.manage.delete', $serie->id) }}"
+                                       class="text-red-600 hover:text-red-800 font-medium">Eliminar</a>
                                 </div>
                             </td>
                         </tr>

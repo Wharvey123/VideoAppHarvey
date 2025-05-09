@@ -23,8 +23,11 @@ class SeriesManageController extends Controller
         return view('series.manage.index', compact('series'));
     }
 
-    public function create(): View
+    public function create(Request $request): View
     {
+        // Emmagatzema la URL anterior a la sessió
+        session(['series_create_redirect' => url()->previous()]);
+
         return view('series.manage.create');
     }
 
@@ -41,15 +44,15 @@ class SeriesManageController extends Controller
         $data['published_at'] = now();
 
         // Assignar la informació de l'usuari: nom i foto de perfil
-        // Assegura't que el camp utilitzat coincideixi amb el nom definit al model d'usuari.
         $data['user_name'] = auth()->check() ? auth()->user()->name : 'Usuari Desconegut';
         $data['user_photo_url'] = auth()->check() ? auth()->user()->profile_photo_url : null;
 
         // Crear la sèrie
-        \App\Models\Serie::create($data);
+        Serie::create($data);
 
-        return redirect()->route('series.manage.index')
-            ->with('success', 'Sèrie creada correctament.');
+        // Redirigir a la URL anterior o a una ruta per defecte
+        $redirectUrl = session('series_create_redirect', route('series.index'));
+        return redirect($redirectUrl)->with('success', 'Sèrie creada correctament.');
     }
 
     /**
@@ -58,28 +61,44 @@ class SeriesManageController extends Controller
     public function edit($id): View
     {
         $serie = Serie::findOrFail($id);
+
+        // Comprova si l'usuari té permís per gestionar sèries o és el propietari
+        if (!auth()->user()->can('manage-series') && $serie->user_name !== auth()->user()->name) {
+            abort(403);
+        }
+
         return view('series.manage.edit', compact('serie'));
     }
+
 
     /**
      * Actualitza la sèrie.
      */
     public function update(Request $request, $id): RedirectResponse
     {
+        $serie = Serie::findOrFail($id);
+        abort_unless(
+            auth()->user()->can('manage-series') || $serie->user_name === auth()->user()->name,
+            403
+        );
+
         $data = $request->validate([
             'title'       => 'required|string|max:255',
             'description' => 'required|string',
-            'image'   => 'required|url'
+            'image'       => 'required|url',
         ]);
 
-        // En editar també actualitzem la data de publicació amb la data actual
         $data['published_at'] = now();
-
-        // Mantenim la informació original de l'usuari sense permetre modificacions
-        $serie = Serie::findOrFail($id);
         $serie->update($data);
 
-        return redirect()->route('series.manage.index')
+        // Redirect back
+        if (auth()->user()->can('manage-series')) {
+            $redirect = $request->query('redirect', route('series.manage.index'));
+        } else {
+            $redirect = $request->query('redirect', route('series.index'));
+        }
+
+        return redirect($redirect)
             ->with('success', 'Sèrie actualitzada correctament.');
     }
 
@@ -89,20 +108,40 @@ class SeriesManageController extends Controller
     public function delete($id): View
     {
         $serie = Serie::findOrFail($id);
+
+        // Comprova si l'usuari té permís per gestionar sèries o és el propietari
+        if (!auth()->user()->can('manage-series') && $serie->user_name !== auth()->user()->name) {
+            abort(403);
+        }
+
         return view('series.manage.delete', compact('serie'));
     }
+
 
     /**
      * Elimina la sèrie (i els vídeos associats o desassigna la relació).
      */
-    public function destroy($id): RedirectResponse
+    public function destroy(Request $request, $id): RedirectResponse
     {
         $serie = Serie::findOrFail($id);
-        // Eliminar la sèrie i desassignar els vídeos (posar series_id a null)
+        abort_unless(
+            auth()->user()->can('manage-series') || $serie->user_name === auth()->user()->name,
+            403
+        );
+
+        // Detach videos and delete the series
         $serie->videos()->update(['series_id' => null]);
         $serie->delete();
 
-        return redirect()->route('series.manage.index')
-            ->with('success', 'Sèrie i vídeos associats gestionats correctament.');
+        // Determine the redirect URL
+        if (auth()->user()->can('manage-series')) {
+            $redirect = $request->query('redirect', route('series.manage.index'));
+        } else {
+            // Use the redirect parameter or default to series.index
+            $redirect = $request->query('redirect', route('series.index'));
+        }
+
+        return redirect($redirect)
+            ->with('success', 'Sèrie eliminada correctament.');
     }
 }

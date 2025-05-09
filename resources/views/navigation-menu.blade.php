@@ -7,6 +7,9 @@
                     <x-nav-link href="{{ route('videos.index') }}" :active="request()->route('videos.index')">
                         {{ __('Videos') }}
                     </x-nav-link>
+                    <x-nav-link href="{{ route('series.index') }}" :active="request()->route('series.index')">
+                        {{ __('Series') }}
+                    </x-nav-link>
                     <x-nav-link href="{{ route('users.index') }}" :active="request()->route('users.index')">
                         {{ __('Users') }}
                     </x-nav-link>
@@ -136,6 +139,9 @@
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link href="{{ route('videos.index') }}" :active="request()->route('videos.index')">
                 {{ __('Videos') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link href="{{ route('series.index') }}" :active="request()->route('series.index')">
+                {{ __('Series') }}
             </x-responsive-nav-link>
             <x-responsive-nav-link href="{{ route('users.index') }}" :active="request()->route('users.index')">
                 {{ __('Users') }}

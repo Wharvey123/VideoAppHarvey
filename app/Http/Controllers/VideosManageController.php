@@ -1,8 +1,8 @@
 <?php
 
-
 namespace App\Http\Controllers;
 
+use App\Events\VideoCreated;
 use App\Models\Video;
 use App\Models\Serie;
 use Illuminate\Contracts\View\Factory;
@@ -10,139 +10,129 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Tests\Feature\Videos\VideosControllerTest;
 
 class VideosManageController extends Controller
 {
-    // Retorna el nom de la classe de test associada
-    public function testedBy(): string
-    {
-        return VideosControllerTest::class;
-    }
-
-    // Mostra la llista de vídeos (CRUD)
+    // Llista de vídeos (només per a gestors)
     public function index(): View|Factory|Application
     {
-        if (!auth()->user()->can('manage videos')) {
-            abort(403, 'Unauthorized');
-        }
+        abort_unless(auth()->user()->can('manage-videos'), 403);
         $videos = Video::all();
         return view('videos.manage.index', compact('videos'));
     }
 
-    // Mostra el formulari de creació de vídeo
+    // Formulari de creació (per a qui tingui el permís)
     public function create(Request $request): View|Factory|Application
     {
-        if (!auth()->user()->can('videos.create')) {
-            abort(403, 'Unauthorized');
-        }
-        // Obtenir totes les sèries disponibles per el selector
-        $series = Serie::all();
-        // Recollir l'id de la sèrie preseleccionada (si s'ha passat per paràmetre)
+        abort_unless(auth()->user()->can('videos.create'), 403);
+
+        $series   = Serie::all();
         $seriesId = $request->query('series_id');
         return view('videos.manage.create', compact('series', 'seriesId'));
     }
 
-    // Desa un vídeo nou
     public function store(Request $request): RedirectResponse
     {
-        if (!auth()->user()->can('videos.create')) {
-            abort(403, 'Unauthorized');
-        }
+        abort_unless(auth()->user()->can('videos.create'), 403);
 
         $data = $request->validate([
-            'title'        => 'required|string|max:255',
-            'description'  => 'required|string',
-            'url'          => 'required|url',
-            'published_at' => 'nullable|date',
-            'previous'     => 'nullable|integer',
-            'next'         => 'nullable|integer',
-            'series_id'    => 'nullable|integer|exists:series,id',
+            'title'       => 'required|string|max:255',
+            'description' => 'required|string',
+            'url'         => 'required|url',
+            'series_id'   => 'nullable|integer|exists:series,id',
         ]);
 
         $data['published_at'] = now();
-        $data['user_id'] = auth()->id();
+        $data['user_id']      = auth()->id();
 
-        // Create video and store reference for redirection
         $video = Video::create($data);
 
-        // Redirect to the public show page for the created video
-        return redirect()->route('video.show', $video->id)
+        // Llançar l'esdeveniment
+        event(new VideoCreated($video));
+
+        // Redirigir a la URL anterior o a la pàgina del vídeo
+        $redirect = $request->input('redirect', route('video.show', $video->id));
+
+        return redirect($redirect)
             ->with('success', 'Vídeo creat correctament.');
     }
 
 
-    // Mostra el formulari d'edició de vídeo
+    // Formulari d'edició
     public function edit($id): View|Factory|Application
     {
-        if (!auth()->user()->can('videos.edit')) {
-            abort(403, 'Unauthorized');
-        }
-
         $video = Video::findOrFail($id);
-        $series = Serie::all(); // Fetch all series
+        abort_unless(
+            auth()->user()->can('manage-videos') || $video->user_id === auth()->id(),
+            403
+        );
 
-        return view('videos.manage.edit', compact('video', 'series')); // Pass series to the view
+        $series = Serie::all();
+        return view('videos.manage.edit', compact('video', 'series'));
     }
 
     // Actualitza el vídeo
     public function update(Request $request, $id): RedirectResponse
     {
-        // Comprovar permisos
-        if (!auth()->user()->can('videos.edit')) {
-            abort(403, 'Unauthorized');
-        }
+        $video = Video::findOrFail($id);
+        abort_unless(
+            auth()->user()->can('manage-videos') || $video->user_id === auth()->id(),
+            403
+        );
 
-        // Validar les dades del formulari
         $data = $request->validate([
             'title'        => 'required|string|max:255',
             'description'  => 'required|string',
             'url'          => 'required|url',
-            'published_at' => 'nullable|date',  // Aquest camp també es pot sobreescriure si cal
-            'previous'     => 'nullable|integer',
-            'next'         => 'nullable|integer',
             'series_id'    => 'nullable|integer|exists:series,id',
         ]);
 
-        // Obtenir el vídeo per id
-        $video = Video::findOrFail($id);
-
-        // Actualitzar el vídeo amb les dades validades
         $video->update($data);
 
-        // Redirigir a la vista de llista de vídeos amb un missatge d'èxit
-        return redirect()->route('videos.manage.index')
+        // Decide redirect: admins back to manage, regular back to public show
+        if (auth()->user()->can('manage-videos')) {
+            $redirect = $request->query('redirect', route('videos.manage.index'));
+        } else {
+            $redirect = $request->query('redirect', route('video.show', $video->id));
+        }
+
+        return redirect($redirect)
             ->with('success', 'Vídeo actualitzat correctament.');
     }
 
-    // Mostra la confirmació d'eliminació
+    // Confirmació d'eliminació
     public function delete($id): View|Factory|Application
     {
-        // Comprovar permisos
-        if (!auth()->user()->can('videos.delete')) {
-            abort(403, 'Unauthorized');
-        }
-        // Obtenir el vídeo per id
         $video = Video::findOrFail($id);
-        // Retornar la vista de confirmació d'eliminació amb el vídeo
+        abort_unless(
+            auth()->user()->can('manage-videos') || $video->user_id === auth()->id(),
+            403
+        );
         return view('videos.manage.delete', compact('video'));
     }
 
-    // Elimina el vídeo
-    public function destroy($id): RedirectResponse
+    // Esborra el vídeo
+    public function destroy(Request $request, $id): RedirectResponse
     {
-        // Comprovar permisos
-        if (!auth()->user()->can('videos.delete')) {
-            abort(403, 'Unauthorized');
+        $serie = Serie::findOrFail($id);
+        abort_unless(
+            auth()->user()->can('manage-series') || $serie->user_name === auth()->user()->name,
+            403
+        );
+
+        // Detach videos and delete the series
+        $serie->videos()->update(['series_id' => null]);
+        $serie->delete();
+
+        // Determine redirect based on user role and query parameter
+        $redirect = $request->query('redirect');
+        if (!$redirect) {
+            $redirect = auth()->user()->can('manage-series')
+                ? route('series.manage.index')
+                : route('series.index');
         }
-        // Obtenir el vídeo per id
-        $video = Video::findOrFail($id);
 
-        // Eliminar el vídeo
-        $video->delete();
-
-        // Redirigir a la vista de llista de vídeos amb un missatge d'èxit
-        return redirect()->route('videos.manage.index')
-            ->with('success', 'Vídeo eliminat correctament.');
+        return redirect($redirect)
+            ->with('success', 'Sèrie eliminada correctament.');
     }
 }

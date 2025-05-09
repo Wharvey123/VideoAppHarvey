@@ -5,19 +5,45 @@
 @section('content')
     <!-- Encapçalament -->
     <div class="bg-gray-800 rounded-lg shadow-lg p-6">
-        <!-- Títol del vídeo -->
-        <h1 class="text-3xl font-bold text-white">{{ $video->title }}</h1>
-        <p class="text-sm text-gray-400 mt-2">
-            Publicat: {{ $video->formatted_published_at }}
-            <span class="text-gray-500">|</span>
-            {{ $video->formatted_for_humans_published_at }}
-        </p>
+        <div class="flex items-start justify-between">
+            <!-- Títol i dates -->
+            <div>
+                <h1 class="text-3xl font-bold text-white">{{ $video->title }}</h1>
+                <p class="text-sm text-gray-400 mt-2">
+                    Publicat: {{ $video->formatted_published_at }}
+                    <span class="text-gray-500">|</span>
+                    {{ $video->formatted_for_humans_published_at }}
+                </p>
+            </div>
+
+            @php
+                $user      = auth()->user();
+                $canAll    = $user && $user->can('manage-videos');
+                $owns      = $user && $video->user_id === $user->id;
+                $showButtons = $canAll || $owns;
+                $redirect   = urlencode(request()->fullUrl());
+            @endphp
+
+            @if($showButtons)
+                <div class="flex space-x-4 mt-1">
+                    @if($canAll || $owns)
+                        <a href="{{ route('videos.manage.edit', $video->id) }}?redirect={{ $redirect }}"
+                           class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700">
+                            Editar
+                        </a>
+                        <a href="{{ route('videos.manage.delete', $video->id) }}?redirect={{ $redirect }}"
+                           class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+                            Eliminar
+                        </a>
+                    @endif
+                </div>
+            @endif
+        </div>
     </div>
 
     <!-- Contingut del vídeo -->
     <div class="mt-8">
         <div class="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
-            <!-- Iframe per al vídeo de YouTube -->
             <iframe class="w-full"
                     style="height: calc(100vw * 9 / 16); max-height: 500px;"
                     src="{{ $video->url }}"
@@ -28,13 +54,13 @@
         </div>
     </div>
 
-    <!-- Descripció del vídeo -->
+    <!-- Descripció -->
     <div class="mt-8 bg-gray-800 rounded-lg shadow-lg p-6">
         <h2 class="text-xl font-semibold text-white">Descripció</h2>
         <p class="text-gray-300 mt-4">{{ $video->description }}</p>
     </div>
 
-    <!-- Navegació entre vídeos -->
+    <!-- Navegació -->
     <div class="mt-8 flex justify-between items-center text-sm">
         @if($video->previous)
             <a href="{{ url('/video/' . $video->previous) }}"
@@ -45,8 +71,8 @@
             <span class="text-gray-500">No hi ha vídeo anterior</span>
         @endif
 
-        <!-- Enllaç per tornar a la llista -->
-        <a href="{{ url('/videos') }}" class="text-blue-400 hover:text-blue-600 font-medium">
+        <a href="{{ url('/videos') }}"
+           class="text-blue-400 hover:text-blue-600 font-medium">
             Tornar a la llista
         </a>
 
