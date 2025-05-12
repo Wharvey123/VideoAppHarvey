@@ -78,7 +78,7 @@ El projecte està estructurat seguint una metodologia àgil basada en sprints, o
 - **Interfície d'usuari:**
     - Afegida la navegació (Navbar i Footer) a la plantilla principal.
 
-### Sprint 5: - Gestió d'Usuaris
+### Sprint 5: Gestió d’Usuaris
 
 - Creació del controlador **UsersManageController** amb les funcions: testedBy, index, store, edit, update, delete i destroy.
 - Creació del controlador **UsersController** amb les funcions index i show.
@@ -91,7 +91,7 @@ El projecte està estructurat seguint una metodologia àgil basada en sprints, o
 - Creació de les rutes per a la gestió d’usuaris amb middleware d’autenticació.
 - Afegida la navegació entre pàgines i actualització de la documentació.
 
-# Sprint 6 - Gestió de Sèries i Assignació de Vídeos a Sèries
+### Sprint 6: Gestió de Sèries i Assignació de Vídeos a Sèries
 
 **Funcionalitats implementades:**
 - Creació de la migració per a la taula `series`.
@@ -104,12 +104,41 @@ El projecte està estructurat seguint una metodologia àgil basada en sprints, o
 - Implementació de tests utilitzant TDD/AAA per comprovar la funcionalitat.
 - Assignació i creació de permisos per a la gestió de sèries.
 
+### Sprint 7: Correccions, notificacions i broadcast
+
+**Correccions i millores:**
+- Correcció d'errors detectats al **Sprint 6**.
+- Revisió i reparació de tests d'sprints anteriors afectats per modificacions recents.
+- Implementació de la funcionalitat perquè els **Regular Users** puguin crear sèries i afegir-hi vídeos.
+
+**Notificacions i Broadcasting:**
+- Creació de l’**event `VideoCreated`**, amb constructor, `broadcastOn()` i `broadcastAs()`, assegurant que implementa `ShouldBroadcast`.
+- Disparar l’event `VideoCreated` des del controlador en el moment de crear un vídeo.
+- Creació del **listener `SendVideoCreatedNotification`**, amb el mètode `handle(VideoCreated $event)` per:
+    - Enviar un correu electrònic als administradors.
+    - Llençar la notificació `VideoCreated` amb informació del vídeo.
+- Actualització del fitxer `app/Providers/EventServiceProvider.php` per registrar l’event i el listener corresponent.
+
+**Configuració de serveis externs:**
+- **Mailtrap/Mailchimp**: Registre i configuració del `.env` per poder enviar correus des de Laravel.
+- **Pusher**: Registre, configuració de credencials al `.env` i comprovació a `config/broadcasting.php` perquè Pusher sigui el servei per defecte.
+
+**Laravel Echo i Notificacions Push:**
+- Instal·lació de `laravel-echo` i `pusher-js` via `npm`.
+- Configuració de Laravel Echo al fitxer `resources/js/bootstrap.js`.
+- Creació d’una vista per mostrar les notificacions push en temps real.
+- Creació de la ruta per accedir a les notificacions.
+
+**Tests:**
+- Creació de `VideoNotificationsTest` amb les funcions:
+    - `test_video_created_event_is_dispatched()`
+    - `test_push_notification_is_sent_when_video_is_created()`
+
+**Documentació i qualitat de codi:**
+- Actualització d’aquest document (`terms.md`) amb totes les funcionalitats del Sprint 7.
+- Verificació de qualitat i estàtica del codi amb **Larastan** per assegurar que els fitxers creats compleixen les bones pràctiques.
 
 ---
 
-## Properes passes
-En els següents sprints, es preveu implementar funcionalitats més avançades com la gestió de sèries de vídeos, cerca, i funcionalitats socials com comentaris o valoracions.
-
----
 
 Gràcies per utilitzar VideosApp!

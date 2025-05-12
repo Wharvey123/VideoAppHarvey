@@ -48,8 +48,12 @@
             @can('manage-users')
                 <a href="{{ route('users.manage.index') }}" class="text-white text-lg font-semibold flex-grow text-center">Manage Users</a>
             @endcan
-        </div>
 
+            <!-- Notificacions (només per a superadmins) -->
+            @if(auth()->user() && auth()->user()->hasRole('superadmin'))
+                <a href="{{ route('notifications.index') }}" class="text-white text-lg font-semibold flex-grow text-center">Notificacions</a>
+            @endif
+        </div>
 
         <!-- Autenticació -->
         <div class="ml-auto relative" x-data="{ open: false }">
@@ -111,6 +115,10 @@
                 @can('manage-users')
                     <a href="{{ route('users.manage.index') }}" class="block text-white text-lg font-semibold hover:text-gray-300">Manage Users</a>
                 @endcan
+
+                @if(auth()->user() && auth()->user()->hasRole('superadmin'))
+                    <a href="{{ route('notifications.index') }}" class="block text-white text-lg font-semibold hover:text-gray-300">Notificacions</a>
+                @endif
             </div>
             <!-- Authentication Links (Mobile) -->
             <div class="mt-6">
@@ -143,7 +151,7 @@
 <!-- Footer -->
 <footer class="bg-gray-800 p-6 mt-auto">
     <div class="container mx-auto text-center text-white">
-        &copy; {{ date('Y') }} Harvey John Glover. Tots els drets reservats.
+        © {{ date('Y') }} Harvey John Glover. Tots els drets reservats.
     </div>
 </footer>
 
