@@ -1,56 +1,40 @@
 @extends('layouts.VideosAppLayout')
 
 @section('content')
-    @php
-        $redirect  = request('redirect');
-        $cancelUrl = $redirect
-            ?? (auth()->user()->can('manage-series')
-                ? route('series.manage.index')
-                : route('series.show', $serie->id));
-    @endphp
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-xl mx-auto bg-gray-800 p-6 rounded-lg shadow-lg">
+            <h1 class="text-2xl font-bold mb-4 text-white">Editar Sèrie</h1>
+            <form action="{{ route('series.manage.update', $serie->id) }}?redirect={{ urlencode($redirect) }}" method="POST">
+                @csrf
+                @method('PUT')
+                <input type="hidden" name="redirect" value="{{ $redirect }}">
 
-    <div class="max-w-xl mx-auto bg-gray-800 p-6 rounded-lg shadow-lg">
-        <h1 class="text-2xl font-bold mb-4 text-white">Editar Sèrie</h1>
-        <form action="{{ route('series.manage.update', $serie->id) }}?redirect={{ urlencode($redirect) }}"
-              method="POST">
-            @csrf
-            @method('PUT')
-
-            @if($serie->image)
-                <div class="mb-4 text-center">
-                    <img src="{{ $serie->image }}" alt="Portada actual"
-                         class="w-32 h-32 object-cover rounded mx-auto mb-2">
+                <div class="mb-4">
+                    <label for="title" class="block text-sm font-medium text-white">Títol</label>
+                    <input type="text" name="title" id="title" value="{{ old('title', $serie->title) }}"
+                           class="mt-1 block w-full p-2 bg-gray-700 text-white border border-gray-600 rounded focus:outline-none focus:border-blue-400"
+                           required>
                 </div>
-            @endif
 
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-white mb-1">Títol</label>
-                <input name="title" value="{{ $serie->title }}"
-                       class="w-full p-2 bg-gray-700 text-white rounded" required>
-            </div>
+                <div class="mb-4">
+                    <label for="description" class="block text-sm font-medium text-white">Descripció</label>
+                    <textarea name="description" id="description" rows="4"
+                              class="mt-1 block w-full p-2 bg-gray-700 text-white border border-gray-600 rounded focus:outline-none focus:border-blue-400"
+                              required>{{ old('description', $serie->description) }}</textarea>
+                </div>
 
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-white mb-1">Descripció</label>
-                <textarea name="description" rows="4"
-                          class="w-full p-2 bg-gray-700 text-white rounded" required>{{ $serie->description }}</textarea>
-            </div>
+                <div class="mb-4">
+                    <label for="image" class="block text-sm font-medium text-white">Portada (URL)</label>
+                    <input type="url" name="image" id="image" value="{{ old('image', $serie->image) }}"
+                           class="mt-1 block w-full p-2 bg-gray-700 text-white border border-gray-600 rounded focus:outline-none focus:border-blue-400"
+                           required>
+                </div>
 
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-white mb-1">Nova Portada (URL)</label>
-                <input name="image" type="url" value="{{ $serie->image }}"
-                       class="w-full p-2 bg-gray-700 text-white rounded">
-            </div>
-
-            <div class="flex justify-between">
-                <a href="{{ $cancelUrl }}"
-                   class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700">
-                    Cancel·lar
-                </a>
-                <button type="submit"
-                        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700">
-                    Actualitzar Sèrie
-                </button>
-            </div>
-        </form>
+                <div class="flex justify-between mt-4">
+                    <a href="{{ $redirect }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700">Cancel·lar</a>
+                    <button type="submit"><x-button color="blue">Actualitzar Sèrie</x-button></button>
+                </div>
+            </form>
+        </div>
     </div>
 @endsection

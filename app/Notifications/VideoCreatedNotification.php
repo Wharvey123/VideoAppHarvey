@@ -6,6 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\BroadcastMessage;
+use Illuminate\Notifications\Messages\MailMessage;
 
 class VideoCreatedNotification extends Notification implements ShouldQueue
 {
@@ -16,7 +17,7 @@ class VideoCreatedNotification extends Notification implements ShouldQueue
     { $this->video = $video; }
 
     public function via($notifiable): array
-    { return ['broadcast', 'database']; }
+    { return ['mail', 'broadcast', 'database']; }
 
     public function toBroadcast($notifiable): BroadcastMessage
     {

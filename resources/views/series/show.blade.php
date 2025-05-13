@@ -6,7 +6,8 @@
         $isManager = $user && $user->can('manage-series');
         $owns      = $user && $serie->user_name === $user->name;
         $showBtns  = $isManager || $owns;
-        $redirect  = urlencode(route('series.index')); // FIXED: Redirect to series index
+        // Ara el redirect és sempre la ruta de show d'aquesta sèrie
+        $redirect  = urlencode(route('series.show', $serie->id));
     @endphp
 
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -39,7 +40,9 @@
             @endif
             <div class="text-white">
                 <p class="font-semibold">Creador: {{ $serie->user_name }}</p>
-                <p class="text-sm text-gray-400">Publicat el: {{ \Carbon\Carbon::parse($serie->published_at)->format('d/m/Y') }}</p>
+                <p class="text-sm text-gray-400">
+                    Publicat el: {{ \Carbon\Carbon::parse($serie->published_at)->format('d/m/Y') }}
+                </p>
             </div>
         </div>
 
@@ -70,7 +73,9 @@
                         @endif
                         <div class="p-4">
                             <h3 class="text-lg font-medium text-white">{{ $video->title }}</h3>
-                            <p class="text-gray-400 text-sm mt-2">{{ \Illuminate\Support\Str::limit($video->description, 60) }}</p>
+                            <p class="text-gray-400 text-sm mt-2">
+                                {{ \Illuminate\Support\Str::limit($video->description, 60) }}
+                            </p>
                         </div>
                     </a>
                 @empty

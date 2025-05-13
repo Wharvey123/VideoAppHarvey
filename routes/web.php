@@ -35,7 +35,9 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     ->group(function () {
 
         // Ruta del tauler de control
-        Route::get('/dashboard', fn() => view('dashboard'))->name('dashboard');
+        Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])->group(function () {
+            Route::get('/dashboard', fn () => redirect()->route('videos.index'))->name('dashboard');
+        });
 
         // ----------------------------
         // CREAR i EMAGATZEMAR VÍDEOS
