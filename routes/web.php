@@ -34,10 +34,8 @@ Route::get('/users/{id}', [UsersController::class, 'show'])->name('users.show');
 Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])
     ->group(function () {
 
-        // Ruta del tauler de control
-        Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])->group(function () {
-            Route::get('/dashboard', fn () => redirect()->route('videos.index'))->name('dashboard');
-        });
+        // Dashboard
+        Route::get('/dashboard', fn() => redirect()->route('videos.index'))->name('dashboard');
 
         // ----------------------------
         // CREAR i EMAGATZEMAR VÍDEOS
@@ -51,7 +49,6 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
 
         // --------------------------------------------------------
         // EDITAR, ACTUALITZAR I ESBORRAR VÍDEOS
-        // (Ownership & global 'manage-videos' checked in controller)
         // --------------------------------------------------------
         Route::prefix('videos/manage')
             ->name('videos.manage.')
@@ -68,6 +65,11 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
         // --------------------------------------------------------
         // USUARIS MANAGEMENT (CRUD)
         // --------------------------------------------------------
+        // Ruta per a la pàgina d'edició sense middlewares restrictius
+        Route::get('/usersmanage/{id}/edit', [UsersManageController::class, 'edit'])
+            ->name('users.manage.edit');
+
+        // Resta de rutes de gestió d'usuaris amb middlewares
         Route::prefix('usersmanage')
             ->name('users.manage.')
             ->middleware('can:manage-users')
@@ -79,9 +81,6 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
                 Route::post('/', [UsersManageController::class, 'store'])
                     ->middleware('can:create-users')
                     ->name('store');
-                Route::get('/{id}/edit', [UsersManageController::class, 'edit'])
-                    ->middleware('can:edit-users')
-                    ->name('edit');
                 Route::put('/{id}', [UsersManageController::class, 'update'])
                     ->middleware('can:edit-users')
                     ->name('update');

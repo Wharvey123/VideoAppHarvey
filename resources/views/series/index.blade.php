@@ -23,7 +23,6 @@
                 </form>
 
                 @auth
-                    <!-- Botó Afegir - ample complet en mòbil, auto en PC -->
                     <a href="{{ route('series.manage.create') }}"
                        class="w-full sm:w-auto bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors text-center sm:text-left">
                         Afegir Nova Sèrie

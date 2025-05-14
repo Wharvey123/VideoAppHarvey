@@ -31,6 +31,7 @@ class PermissionHelper
         Gate::define('delete-series', fn($user) =>
             $user->hasPermissionTo('series.delete') || $user->hasPermissionTo('manage series') || $user->isSuperAdmin()
         );
+
     }
 
     /** Crea els permisos bàsics per a la gestió de vídeos (CRUD).*/
@@ -58,19 +59,20 @@ class PermissionHelper
      */
     public static function create_series_management_permissions(): void
     {
-        $seriesPermissions = ['manage series', 'series.create', 'series.edit', 'series.delete',];
-        $videoPermissions = ['manage videos', 'videos.create', 'videos.edit', 'videos.delete',];
+        // Definir els permisos al principi
+        $seriesPermissions = ['manage series', 'series.create', 'series.edit', 'series.delete'];
+        $videoPermissions = ['manage videos', 'videos.create', 'videos.edit', 'videos.delete'];
 
-        // Crear permisos si no existeixen
+        // Crear els permisos si no existeixen
         foreach (array_merge($seriesPermissions, $videoPermissions) as $permission) {
             Permission::firstOrCreate(['name' => $permission]);
         }
 
-        // Assignar permisos al rol superadmin
+        // Assignar permisos al rol 'superadmin'
         $superadminRole = Role::firstOrCreate(['name' => 'superadmin']);
         $superadminRole->syncPermissions(array_merge($seriesPermissions, $videoPermissions));
 
-        // Assignar només permisos de sèries al rol videomanager
+        // Assignar només permisos de sèries al rol 'videomanager'
         $videomanagerRole = Role::firstOrCreate(['name' => 'videomanager']);
         $videomanagerRole->syncPermissions($seriesPermissions);
     }

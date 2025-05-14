@@ -8,14 +8,19 @@ use App\Models\User;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 
+/**
+ * @method authorize(string $string, $user)
+ */
 class UsersManageController extends Controller
 {
+    use AuthorizesRequests;
     // Funció per als tests (per exemple, pot retornar informació addicional)
     public function testedBy(): string
     {
@@ -82,14 +87,10 @@ class UsersManageController extends Controller
     // Mostra el formulari d'edició per un usuari concret
     public function edit($id): View|Factory|Application
     {
-        if (! Gate::allows('manage-users')) {
-            abort(403);
-        }
-
         $user = User::with('currentTeam')->findOrFail($id);
+        $this->authorize('edit', $user); // Comprova la política d'usuari
         $teams = Team::all(); // Obtenir tots els equips
         $roles = Role::all(); // Obtenir tots els rols
-
         return view('users.manage.edit', compact('user', 'teams', 'roles'));
     }
 
